@@ -1,34 +1,66 @@
-# ====================
-# Node / Backend
-# ====================
+# Node modules
 node_modules/
-dist/
-.env
-.env.*      # ignore all env variants
+**/node_modules/
+
+# Logs
+logs
+*.log
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
 
-# ====================
-# Vite / React / Frontend
-# ====================
-# node_modules (frontend)
-frontend/node_modules/
-frontend/dist/
-frontend/.env
-frontend/.env.*        # frontend env files
+# Runtime data
+pids
+*.pid
+*.seed
+*.pid.lock
 
-# ====================
-# Editor / OS
-# ====================
-.DS_Store
+# Environment files
+.env
+.env.*
+.env.keys
+.env.development
+.env.production
+.env.*.local
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+
+# Build outputs
+dist/
+build/
+out/
+coverage/
+tmp/
+temp/
+
+# React/Frontend
+frontend/build/
+frontend/dist/
+
+# IDEs and editors
 .vscode/
 .idea/
-*.log
-
-# ====================
-# Optional / Misc
-# ====================
-*.tgz
-*.zip
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
 *.bak
+
+# OS generated files
+.DS_Store
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+
+# Yarn v2/v3
+.yarn/*
+!.yarn/cache
+!.yarn/patches
+!.yarn/releases
+!.yarn/plugins
+!.yarn/sdks
+!.yarn/versions
+.pnp.*
