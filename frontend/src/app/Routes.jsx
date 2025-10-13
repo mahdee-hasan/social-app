@@ -16,6 +16,7 @@ import App from "@/components/lexical/LexicalInputTag";
 import Footer from "@/Layouts/Footer";
 import UserInfo from "@/features/user/pages/UserInfo";
 import Inbox from "@/features/chat/pages/Inbox";
+import ConversationDrawer from "@/features/chat/components/ConversationDrawer";
 
 // Global pages
 const AppRoutes = () => {
@@ -51,6 +52,7 @@ const AppRoutes = () => {
           {" "}
           <Navbar />
           <hr className="h-18" />
+          <ConversationDrawer />
         </>
       )}
       <Routes>
