@@ -1,0 +1,38 @@
+{
+  "name": "chat-application",
+  "version": "1.0.0",
+  "description": "this is my first project with backend",
+  "main": "index.js",
+  "scripts": {
+    "dev": "dotenvx run -f .env.development -- nodemon index.js",
+    "start": "dotenvx run -f .env.production -- node index.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/mahdee-hasan/chat-application.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "homepage": "https://github.com/mahdee-hasan/chat-application#readme",
+  "dependencies": {
+    "@dotenvx/dotenvx": "^1.51.0",
+    "bcrypt": "^6.0.0",
+    "cloudinary": "^2.7.0",
+    "cookie-parser": "^1.4.7",
+    "cors": "^2.8.5",
+    "ejs": "^3.1.10",
+    "express": "^5.1.0",
+    "express-validator": "^7.2.1",
+    "firebase-admin": "^13.5.0",
+    "http-error": "^0.0.6",
+    "jsonwebtoken": "^9.0.2",
+    "mongoose": "^8.18.1",
+    "multer": "^2.0.2",
+    "nodemon": "^3.1.10",
+    "socket.io": "^4.8.1"
+  },
+  "keywords": [],
+  "devDependencies": {
+    "cross-env": "^10.0.0"
+  }
+}
