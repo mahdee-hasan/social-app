@@ -51,7 +51,7 @@ const CreateNewCon = () => {
   return (
     <AlertDialog>
       <AlertDialogTrigger>
-        <Plus className="w-10 h-10" />
+        <Plus className="w-10 h-10 rounded-full cursor-pointer ring ring-offset-2" />
       </AlertDialogTrigger>
 
       <AlertDialogContent>

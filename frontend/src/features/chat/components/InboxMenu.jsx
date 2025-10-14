@@ -64,7 +64,7 @@ const InboxMenu = () => {
   }
 
   return (
-    <div className="h-[90%] w-1/4 relative">
+    <div className="h-full w-1/4 relative">
       <div className="flex flex-col gap-1 ">
         {" "}
         <p className="h-18 bg-gray-200 w-11/12 flex justify-center text-2xl items-center">
@@ -96,8 +96,8 @@ const InboxMenu = () => {
         ))}
       </div>
       <div
-        className="absolute bottom-8 cursor-pointer
-       left-3 h-15 ring flex items-center justify-center w-15 rounded-full"
+        className="absolute bottom-3
+       left-3 h-15 flex items-center justify-center w-15 rounded-full"
       >
         <CreateNewCon />
       </div>

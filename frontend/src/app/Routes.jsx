@@ -82,7 +82,6 @@ const AppRoutes = () => {
           </>
         )}
       </Routes>
-      <Footer />
     </>
   );
 };

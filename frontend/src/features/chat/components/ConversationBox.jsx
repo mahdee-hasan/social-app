@@ -7,7 +7,7 @@ import MessageBody from "./MessageBody";
 
 const ConversationBox = () => {
   return (
-    <div className="w-3/4 rounded-xl flex flex-col ring h-[90%]">
+    <div className="w-3/4 rounded-xl flex flex-col ring h-full">
       <div className="bg-gray-300 rounded-t-xl flex items-center-safe h-16 w-full">
         <div className="flex  justify-between w-full items-center px-10  gap-2">
           <div className="flex items-center gap-1">
