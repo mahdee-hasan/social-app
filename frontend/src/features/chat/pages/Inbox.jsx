@@ -1,4 +1,3 @@
-import React from "react";
 import InboxMenu from "../components/InboxMenu";
 import ConversationBox from "../components/ConversationBox";
 

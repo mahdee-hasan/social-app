@@ -9,20 +9,26 @@ const deleteUsersConversation = require("../utilities/deleteAttachment");
 
 //get inbox
 const getInbox = async (req, res, next) => {
-  const conversations = await conversation
-    .find({
-      $or: [
-        { "participant_1.id": req.user.userId },
-        { "participant_2.id": req.user.userId },
-      ],
-      isDeleted: { $nin: [req.user.userId] },
-    })
-    .sort("-lastMessage.time");
-
-  let activeIds = [];
-  const activePeople = await people.find({ active: true }, "_id");
-  activePeople.map((people) => activeIds.push(people.id.toString()));
-  res.status(200).json({ conversations, activeIds });
+  try {
+    console.log(req.user);
+    return;
+    const conversations = await conversation
+      .find({
+        participants: req.user.userId,
+        isDeleted: { $nin: [req.user.userId] },
+      })
+      .sort("-lastMessage.time");
+    if (!conversations.length) {
+      res.status(404).json({ error: "user do not has any conversation" });
+    } else {
+      res.status(200).json({ conversations });
+    }
+    // let activeIds = [];
+    // const activePeople = await people.find({ active: true }, "_id");
+    // activePeople.map((people) => activeIds.push(people.id.toString()));
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
 };
 const searchUser = async (req, res, next) => {
   try {
