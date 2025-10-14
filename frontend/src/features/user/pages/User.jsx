@@ -14,6 +14,7 @@ import AboutUser from "@/components/AboutUser";
 import Post from "@/components/Post";
 import getUser from "@/services/getUser";
 import FriendList from "@/components/FriendList";
+import { useUserStore } from "@/app/store";
 
 const navItem = [
   { sr: 1, name: "post" },
@@ -25,21 +26,25 @@ const User = () => {
   const [user, setUser] = useState(null);
   const [error, setError] = useState(null);
   const [loading, setLoading] = useState(true);
-
+  const uid = useUserStore((s) => s.userUid);
   const loadUser = async () => {
-    try {
-      const data = await getUser();
-      setUser(data.user);
-    } catch (error) {
-      setError(error);
-    } finally {
-      setLoading(false);
+    if (uid) {
+      try {
+        const data = await getUser();
+        setUser(data.user);
+      } catch (error) {
+        setError(error);
+      } finally {
+        setLoading(false);
+      }
+    } else {
+      location.replace("/auth/login");
     }
   };
 
   useEffect(() => {
     loadUser();
-  }, [user]);
+  }, [uid]);
 
   const renderContent = () => {
     switch (activeTab) {

@@ -11,6 +11,7 @@ import {
   signOut,
   deleteUser,
 } from "firebase/auth";
+import { useUserStore } from "./app/store";
 
 // 🔹 Firebase config
 const firebaseConfig = {
@@ -37,7 +38,10 @@ const signInWithGoogle = async () => {
   try {
     const result = await signInWithPopup(auth, googleProvider);
     const user = result.user;
-
+    useUserStore.setState({
+      userUid: user.uid,
+      idToken: user.accessToken,
+    });
     return user;
   } catch (error) {
     console.error("Google login error:", error);
@@ -49,7 +53,10 @@ const signInWithFacebook = async () => {
   try {
     const result = await signInWithPopup(auth, facebookProvider);
     const user = result.user;
-
+    useUserStore.setState({
+      userUid: user.uid,
+      idToken: user.accessToken,
+    });
     return user;
   } catch (error) {
     throw error;
@@ -68,6 +75,10 @@ const signInManually = async (email, password, displayName) => {
       displayName: displayName,
     });
     console.log("Account created:", user.email, "UID:", user.uid);
+    useUserStore.setState({
+      userUid: user.uid,
+      idToken: user.accessToken,
+    });
     return user;
   } catch (err) {
     return err;
@@ -83,6 +94,11 @@ const login = async (email, password) => {
     );
     const user = userCredential.user;
     console.log("Logged in:", user.email, "Name:", user.displayName);
+    useUserStore.setState({
+      userUid: user.uid,
+      idToken: user.accessToken,
+    });
+
     return user;
   } catch (err) {
     return err;
@@ -91,6 +107,12 @@ const login = async (email, password) => {
 const logout = async () => {
   try {
     signOut(auth);
+    useUserStore.setState({
+      userUid: "",
+      userObjectId: "",
+      idToken: "",
+    });
+
     return { success: true, error: null };
   } catch (error) {
     return { success: false, error: error.message || "sign out error" };

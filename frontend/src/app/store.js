@@ -22,5 +22,19 @@ const useUserStore = create(
     }
   )
 );
+const useChatStore = create(
+  persist(
+    (set) => ({
+      openedChat: "",
+      setOpenedChat: (payload) => set({ openedChat: payload }),
+      miniChat: "",
+      setMiniChat: (payload) => set({ miniChat: payload }),
+    }),
+    {
+      name: "chat-store", // key name in storage
+      storage: createJSONStorage(() => sessionStorage),
+    }
+  )
+);
 
-export { useAuthstore, useUserStore };
+export { useAuthstore, useUserStore, useChatStore };

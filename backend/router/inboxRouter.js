@@ -16,12 +16,14 @@ const {
   closeChat,
   closeAllChat,
   startTyping,
+  getOneConversation,
 } = require("../controllers/inboxController");
 const checkAuth = require("../middleware/common/checkAuth");
 const attachmentUploader = require("../middleware/inbox/attachmentUploader");
 const attachToCloud = require("../middleware/inbox/attachToCloud");
 
 router.get("/conversations/:id", checkAuth, getInbox);
+router.get("/conversation/:id", checkAuth, getOneConversation);
 router.delete("/:id", checkAuth, deleteConversation);
 router.post("/searchUser", checkAuth, searchUser);
 router.post("/conversation", checkAuth, addConversation);

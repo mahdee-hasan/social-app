@@ -31,6 +31,18 @@ const getInbox = async (req, res, next) => {
     res.status(500).json({ error: error.message });
   }
 };
+const getOneConversation = async (req, res, next) => {
+  try {
+    const selectedConversation = await conversation.findById(req.params.id);
+    if (!conversation) {
+      res.status(404).json({ error: "conversation not found" });
+    } else {
+      res.status(200).json({ conversation: selectedConversation });
+    }
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+};
 const searchUser = async (req, res, next) => {
   try {
     const value = req.body.user.replace("+88", "");
@@ -474,4 +486,5 @@ module.exports = {
   closeChat,
   closeAllChat,
   startTyping,
+  getOneConversation,
 };

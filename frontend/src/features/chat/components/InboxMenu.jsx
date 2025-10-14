@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 
 import getAllConversation from "../services/getAllConversation";
-import { useUserStore } from "@/app/store";
+import { useChatStore, useUserStore } from "@/app/store";
 import { Plus, UserIcon } from "lucide-react";
 import CreateNewCon from "./CreateNewCon";
 
@@ -9,12 +9,12 @@ const InboxMenu = () => {
   const [conversations, setConversations] = useState();
   const [loading, setLoading] = useState(true);
   const userId = useUserStore((s) => s.userObjectId);
-
+  const setConId = useChatStore((s) => s.setOpenedChat);
   const getCon = async () => {
     try {
       const data = await getAllConversation(userId);
       if (data.success) {
-        setConversations(data.conversations);
+        setConversations(data.conversations || []);
       } else {
         throw new Error(data.error);
       }
@@ -24,10 +24,10 @@ const InboxMenu = () => {
       setLoading(false);
     }
   };
-  console.log(conversations);
+
   useEffect(() => {
     getCon();
-  }, []);
+  }, [userId]);
   const getOpponents = (value) => {
     const opponent =
       value.participants[0]._id === userId
@@ -35,6 +35,7 @@ const InboxMenu = () => {
         : value.participants[0];
     return opponent;
   };
+
   if (loading) {
     return (
       <div className="h-full w-1/4">
@@ -72,7 +73,9 @@ const InboxMenu = () => {
         </p>
         {conversations?.map((con, i, arr) => (
           <div
-            className="w-11/12 flex gap-1 drop-down rounded p-1 items-center animate-pulse bg-gray-400 h-18"
+            onClick={() => setConId(con._id)}
+            className="w-11/12 flex gap-1 drop-down rounded p-1
+             items-center cursor-pointer bg-gray-400 h-18"
             key={con._id}
             style={{
               animationDelay: `${(arr.length - 1 - i) * 0.1}s`, // reverse delay

@@ -1,11 +1,25 @@
 import { SendHorizonal } from "lucide-react";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { BsThreeDotsVertical } from "react-icons/bs";
 import { FaUser } from "react-icons/fa";
 import { IoAttach, IoCall, IoVideocam } from "react-icons/io5";
 import MessageBody from "./MessageBody";
+import getOneConversation from "../services/getOneConversation";
+import { useChatStore } from "@/app/store";
 
 const ConversationBox = () => {
+  const conId = useChatStore((s) => s.openedChat);
+  const [conversation, setConversation] = useState({});
+  const gettingCon = async () => {
+    const data = await getOneConversation(conId);
+    if (data.success) {
+      setConversation(data.conversation);
+    }
+  };
+  console.log(conversation);
+  useEffect(() => {
+    gettingCon();
+  }, [conId]);
   return (
     <div className="w-3/4 rounded-xl flex flex-col ring h-full">
       <div className="bg-gray-300 rounded-t-xl flex items-center-safe h-16 w-full">

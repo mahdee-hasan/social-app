@@ -1,9 +1,7 @@
-import { getAuth, onAuthStateChanged, signOut } from "firebase/auth";
 import Auth from "@/features/auth/page/Auth";
 import Login from "@/features/auth/page/Login";
 import Register from "@/features/auth/page/Register";
 
-import { useEffect, useState } from "react";
 import { Routes, Route, useNavigate } from "react-router-dom";
 import { FaSignOutAlt } from "react-icons/fa";
 import User from "@/features/user/pages/User";
@@ -17,23 +15,13 @@ import Footer from "@/Layouts/Footer";
 import UserInfo from "@/features/user/pages/UserInfo";
 import Inbox from "@/features/chat/pages/Inbox";
 import ConversationDrawer from "@/features/chat/components/ConversationDrawer";
+import { useUserStore } from "./store";
+import { useEffect } from "react";
 
 // Global pages
 const AppRoutes = () => {
-  const [user, setUser] = useState(null);
-  const [isLoading, setIsLoading] = useState(true);
-  const auth = getAuth();
   const navigate = useNavigate();
-  useEffect(() => {
-    return onAuthStateChanged(auth, (firebaseUser) => {
-      setUser(firebaseUser);
-      setIsLoading(false);
-    });
-  }, []);
-  if (isLoading) {
-    return <div>loading ...... ....... </div>;
-  }
-
+  const user = useUserStore((s) => s.userUid);
   return (
     <>
       <FaSignOutAlt
@@ -41,7 +29,7 @@ const AppRoutes = () => {
         onClick={async () => {
           const status = await logout();
           if (status.success) {
-            navigate("/auth/login");
+            location.replace("/auth/login");
           } else {
             alert(status.error);
           }
