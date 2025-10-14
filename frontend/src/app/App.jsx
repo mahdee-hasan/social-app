@@ -4,12 +4,24 @@ import AppRoutes from "./routes";
 import { useUserStore } from "./store";
 import { getAuth, onAuthStateChanged } from "firebase/auth";
 import { useEffect, useState } from "react";
+import getUser from "@/services/getUser";
 
 function App() {
   const [isLoading, setIsLoading] = useState(true);
+  const [user, setUser] = useState({});
   const setIdToken = useUserStore((state) => state.setIdToken);
   const setUid = useUserStore((state) => state.setUserUid);
+  const setObjectId = useUserStore((state) => state.setUserObjectId);
 
+  const loadUser = async () => {
+    try {
+      const data = await getUser();
+      setUser(data.user);
+      setObjectId(data.user._id);
+    } catch (error) {
+      console.log(error);
+    }
+  };
   useEffect(() => {
     try {
       const auth = getAuth();
@@ -22,6 +34,7 @@ function App() {
           console.log("No user signed in");
         }
       });
+      loadUser();
       return () => unsubscribe();
     } catch (error) {
       console.error(error.message);

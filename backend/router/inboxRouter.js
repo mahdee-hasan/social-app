@@ -21,7 +21,7 @@ const checkAuth = require("../middleware/common/checkAuth");
 const attachmentUploader = require("../middleware/inbox/attachmentUploader");
 const attachToCloud = require("../middleware/inbox/attachToCloud");
 
-router.get("/", checkAuth, getInbox);
+router.get("/conversations/:id", checkAuth, getInbox);
 router.delete("/:id", checkAuth, deleteConversation);
 router.post("/searchUser", checkAuth, searchUser);
 router.post("/conversation", checkAuth, addConversation);

@@ -2,15 +2,17 @@ import React, { useEffect, useState } from "react";
 
 import getAllConversation from "../services/getAllConversation";
 import { useUserStore } from "@/app/store";
-import { UserIcon } from "lucide-react";
+import { Plus, UserIcon } from "lucide-react";
+import CreateNewCon from "./CreateNewCon";
 
 const InboxMenu = () => {
   const [conversations, setConversations] = useState();
   const [loading, setLoading] = useState(true);
-  const userId = useUserStore((s) => s.userId);
+  const userId = useUserStore((s) => s.userObjectId);
+
   const getCon = async () => {
     try {
-      const data = await getAllConversation();
+      const data = await getAllConversation(userId);
       if (data.success) {
         setConversations(data.conversations);
       } else {
@@ -22,6 +24,7 @@ const InboxMenu = () => {
       setLoading(false);
     }
   };
+  console.log(conversations);
   useEffect(() => {
     getCon();
   }, []);
@@ -61,13 +64,13 @@ const InboxMenu = () => {
   }
 
   return (
-    <div className="h-full w-1/4">
+    <div className="h-[90%] w-1/4 relative">
       <div className="flex flex-col gap-1 ">
         {" "}
         <p className="h-18 bg-gray-200 w-11/12 flex justify-center text-2xl items-center">
           Inbox
         </p>
-        {conversations?.map((con, _, arr) => (
+        {conversations?.map((con, i, arr) => (
           <div
             className="w-11/12 flex gap-1 drop-down rounded p-1 items-center animate-pulse bg-gray-400 h-18"
             key={con._id}
@@ -91,6 +94,12 @@ const InboxMenu = () => {
             </div>
           </div>
         ))}
+      </div>
+      <div
+        className="absolute bottom-8 cursor-pointer
+       left-3 h-15 ring flex items-center justify-center w-15 rounded-full"
+      >
+        <CreateNewCon />
       </div>
     </div>
   );

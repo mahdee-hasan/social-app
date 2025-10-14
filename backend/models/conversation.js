@@ -2,7 +2,7 @@ const mongoose = require("mongoose");
 
 const conversationSchema = mongoose.Schema(
   {
-    participant: {
+    participants: {
       type: [mongoose.Schema.Types.ObjectId],
       ref: "people",
       required: true,

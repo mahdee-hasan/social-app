@@ -6,18 +6,18 @@ const fs = require("fs");
 const path = require("path");
 const cloudinary = require("../cloudinaryConfig");
 const deleteUsersConversation = require("../utilities/deleteAttachment");
-
+const mongoose = require("mongoose");
 //get inbox
 const getInbox = async (req, res, next) => {
   try {
-    console.log(req.user);
-    return;
     const conversations = await conversation
       .find({
-        participants: req.user.userId,
-        isDeleted: { $nin: [req.user.userId] },
+        participants: req.params.id,
+        isDeleted: { $nin: [req.params.id] },
       })
-      .sort("-lastMessage.time");
+      .sort("-lastMessage.time")
+      .populate("participants");
+
     if (!conversations.length) {
       res.status(404).json({ error: "user do not has any conversation" });
     } else {
@@ -27,6 +27,7 @@ const getInbox = async (req, res, next) => {
     // const activePeople = await people.find({ active: true }, "_id");
     // activePeople.map((people) => activeIds.push(people.id.toString()));
   } catch (error) {
+    console.log(error.message);
     res.status(500).json({ error: error.message });
   }
 };
@@ -69,72 +70,49 @@ const searchUser = async (req, res, next) => {
     console.log(error.message);
   }
 };
-const addConversation = async (req, res, next) => {
+
+const addConversation = async (req, res) => {
   try {
-    let newCon;
-    const user = await people.findById(req.user.userId, "name avatar");
-    const match1 = await conversation.find({
-      "participant_1.id": req.body.participant_2.id,
-      "participant_2.id": user._id,
-    });
-    const match2 = await conversation.find({
-      "participant_2.id": req.body.participant_2.id,
-      "participant_1.id": user._id,
+    // current logged-in user
+    const user = await people.findOne({ uid: req.user.uid }, "_id");
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
+    }
+
+    // find all conversations containing both participants
+    const matches = await conversation.find({
+      participants: {
+        $all: [new mongoose.Types.ObjectId(req.body.id), user._id],
+      },
     });
 
-    if (
-      !match1.length &&
-      !match2.length &&
-      JSON.stringify(user._id) !== JSON.stringify(req.body.participant_2.id)
-    ) {
-      newCon = new conversation({
-        ...req.body,
-        participant_1: {
-          id: user._id,
-          name: user.name,
-          avatar: user.avatar,
-        },
+    // filter only private (2-person) chats
+    const privateCon = matches.find((c) => c.participants.length === 2);
+
+    if (!privateCon) {
+      // create a new private conversation if none found
+      const newCon = new conversation({
+        participants: [user._id, req.body.id],
       });
 
-      try {
-        const result = await newCon.save();
-        res.status(201).json({
-          message: "conversation added successfully",
-          con: result,
-          id: result._id,
-        });
-      } catch (error) {
-        res.status(500).json({
-          message: "unknown error occurred",
-        });
-        console.log(error.message);
-      }
-    } else if (
-      !match1.length &&
-      !match2.length &&
-      JSON.stringify(user._id) === JSON.stringify(req.body.participant_2.id)
-    ) {
-      res.status(500).json({
-        message: "you want to chat with you !!! look how lonely are you",
+      const result = await newCon.save();
+
+      return res.status(201).json({
+        message: "New conversation created successfully",
+        con: result,
+        id: result._id,
       });
     } else {
-      if (match1.length) {
-        res.status(200).json({
-          error: "1 conversation already created",
-          match: true,
-          id: match1[0]._id,
-        });
-      } else {
-        res.status(200).json({
-          error: "2 conversation already created",
-          match: true,
-          id: match2[0]._id,
-        });
-      }
+      // already exists (either group or private)
+      return res.status(200).json({
+        message: "Conversation already exists",
+        con: privateCon,
+        id: privateCon._id,
+      });
     }
   } catch (error) {
-    console.log(error.message);
-    res.status(500).json({ error: error.message });
+    console.error("Error adding conversation:", error.message);
+    return res.status(500).json({ error: error.message });
   }
 };
 

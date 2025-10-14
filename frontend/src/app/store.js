@@ -11,6 +11,8 @@ const useUserStore = create(
     (set) => ({
       userUid: "",
       setUserUid: (payload) => set({ userUid: payload }),
+      userObjectId: "",
+      setUserObjectId: (payload) => set({ userObjectId: payload }),
       idToken: "",
       setIdToken: (payload) => set({ idToken: payload }),
     }),

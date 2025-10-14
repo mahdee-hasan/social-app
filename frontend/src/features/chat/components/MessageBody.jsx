@@ -47,11 +47,7 @@ const MessageBody = () => {
 
       <div className="h-1/10 p-5 justify-between rounded-b-xl bg-gray-400 flex items-center">
         <IoAttach className="text-2xl" />
-        <input
-          type="text"
-          autoFocus
-          className="rounded-lg w-4/5 h-7 bg-gray-100 p-1"
-        />
+        <input type="text" className="rounded-lg w-4/5 h-7 bg-gray-100 p-1" />
         <SendHorizonal onClick={addMessage} className="cursor-pointer" />
       </div>
     </>
