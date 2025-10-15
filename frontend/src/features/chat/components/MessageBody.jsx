@@ -11,6 +11,10 @@ const MessageBody = () => {
     setMessage((prev) => [...prev, prev.length]);
   };
 
+  const handleSubmit = async () => {
+    try {
+    } catch (error) {}
+  };
   useEffect(() => {
     bottomRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [message]);
@@ -46,9 +50,14 @@ const MessageBody = () => {
       </div>
 
       <div className="h-1/10 p-5 justify-between rounded-b-xl bg-gray-400 flex items-center">
-        <IoAttach className="text-2xl" />
-        <input type="text" className="rounded-lg w-4/5 h-7 bg-gray-100 p-1" />
-        <SendHorizonal onClick={addMessage} className="cursor-pointer" />
+        <form action="" onSubmit={handleSubmit}>
+          <label htmlFor="file">
+            <input type="file" name="file" id="file" />
+            <IoAttach className="text-2xl" />
+          </label>
+          <input type="text" className="rounded-lg w-4/5 h-7 bg-gray-100 p-1" />
+          <SendHorizonal onClick={addMessage} className="cursor-pointer" />
+        </form>
       </div>
     </>
   );

@@ -5,38 +5,28 @@ const messageSchema = mongoose.Schema(
     text: {
       type: String,
     },
-    old_text: {
-      type: [String],
-      default: [],
-    },
     attachment: {
       type: Array,
     },
     sender: {
-      id: mongoose.Types.ObjectId,
-      name: String,
-      avatar: String,
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "people",
+      required: true,
     },
     deletedFor: {
-      type: [String],
+      type: [mongoose.Schema.Types.ObjectId],
       default: [],
     },
     receiver: {
-      id: mongoose.Types.ObjectId,
-      name: String,
-      avatar: String,
-    },
-    date_time: {
-      type: Date,
-      default: Date.now(),
-    },
-    conversation_id: {
-      type: mongoose.Types.ObjectId,
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "people",
       required: true,
     },
-    editable: {
-      type: Boolean,
-      default: true,
+
+    conversation_id: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "conversation",
+      required: true,
     },
   },
   {
