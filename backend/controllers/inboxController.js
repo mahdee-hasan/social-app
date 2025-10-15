@@ -33,7 +33,9 @@ const getInbox = async (req, res, next) => {
 };
 const getOneConversation = async (req, res, next) => {
   try {
-    const selectedConversation = await conversation.findById(req.params.id);
+    const selectedConversation = await conversation
+      .findById(req.params.id)
+      .populate("participants");
     if (!conversation) {
       res.status(404).json({ error: "conversation not found" });
     } else {

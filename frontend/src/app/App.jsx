@@ -8,7 +8,7 @@ import getUser from "@/services/getUser";
 
 function App() {
   const [isLoading, setIsLoading] = useState(true);
-  const [tokenLoading, setITokenLoading] = useState(true);
+  const [tokenLoading, setTokenLoading] = useState(true);
 
   const setIdToken = useUserStore((state) => state.setIdToken);
   const setUid = useUserStore((state) => state.setUserUid);
@@ -34,13 +34,14 @@ function App() {
       if (firebaseUser) {
         const token = await firebaseUser.getIdToken(true);
         setIdToken(token);
+        setUid(firebaseUser.uid);
       } else {
         console.log("No user signed in");
       }
     } catch (error) {
       console.log(error.message);
     } finally {
-      setITokenLoading(false);
+      setTokenLoading(false);
     }
   });
 
