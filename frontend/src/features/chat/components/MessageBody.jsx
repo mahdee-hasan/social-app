@@ -6,7 +6,7 @@ import { IoAttach } from "react-icons/io5";
 const MessageBody = () => {
   const [message, setMessage] = useState([0, 1, 2, 3, 4, 5, 6]);
   const bottomRef = useRef(null);
-
+  const [text, setText] = useState("");
   const addMessage = () => {
     setMessage((prev) => [...prev, prev.length]);
   };
@@ -55,7 +55,12 @@ const MessageBody = () => {
             <input type="file" name="file" id="file" />
             <IoAttach className="text-2xl" />
           </label>
-          <input type="text" className="rounded-lg w-4/5 h-7 bg-gray-100 p-1" />
+          <input
+            type="text"
+            value={text}
+            onChange={(e) => setText(e.target.value)}
+            className="rounded-lg w-4/5 h-7 bg-gray-100 p-1"
+          />
           <SendHorizonal onClick={addMessage} className="cursor-pointer" />
         </form>
       </div>
