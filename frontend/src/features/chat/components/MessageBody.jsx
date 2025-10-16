@@ -1,3 +1,4 @@
+import { useChatStore } from "@/app/store";
 import { SendHorizonal } from "lucide-react";
 import React, { useEffect, useRef, useState } from "react";
 import { FaUser } from "react-icons/fa";
@@ -5,10 +6,11 @@ import { IoAttach } from "react-icons/io5";
 
 const MessageBody = () => {
   const [message, setMessage] = useState([0, 1, 2, 3, 4, 5, 6]);
+  const conId = useChatStore((s) => s.openedChat);
   const bottomRef = useRef(null);
   const [text, setText] = useState("");
   const addMessage = () => {
-    setMessage((prev) => [...prev, prev.length]);
+    const bodyObject = { text, conId };
   };
 
   const handleSubmit = async () => {
