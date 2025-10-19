@@ -19,7 +19,7 @@ const ConversationBox = () => {
     }
     setIsLoading(false);
   };
-  console.log(conversation);
+
   useEffect(() => {
     gettingCon();
   }, [conId]);

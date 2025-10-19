@@ -6,13 +6,36 @@ import { IoAttach } from "react-icons/io5";
 
 const MessageBody = () => {
   const [message, setMessage] = useState([0, 1, 2, 3, 4, 5, 6]);
+  const [files, setFiles] = useState([]);
+  const [previews, setPreviews] = useState([]);
   const conId = useChatStore((s) => s.openedChat);
   const bottomRef = useRef(null);
   const [text, setText] = useState("");
   const addMessage = () => {
     const bodyObject = { text, conId };
   };
+  const handleFileChange = (e) => {
+    const selected = Array.from(e.target.files);
+    if (selected.length > 5) return alert("You can upload up to 5 files only.");
+    setFiles(selected);
+  };
+  useEffect(() => {
+    if (!files.length) {
+      setPreviews([]);
+      return;
+    }
 
+    const objectUrls = files.map((file) => ({
+      name: file.name,
+      url: URL.createObjectURL(file),
+      type: file.type,
+    }));
+
+    setPreviews(objectUrls);
+
+    // Revoke URLs when component unmounts or files change
+    return () => objectUrls.forEach((p) => URL.revokeObjectURL(p.url));
+  }, [files]);
   const handleSubmit = async () => {
     try {
     } catch (error) {}
@@ -20,7 +43,7 @@ const MessageBody = () => {
   useEffect(() => {
     bottomRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [message]);
-
+  console.log(files, previews);
   return (
     <>
       <div className="h-9/10 max-h-9/10 flex flex-col justify-end">
@@ -51,17 +74,35 @@ const MessageBody = () => {
         </div>
       </div>
 
-      <div className="h-1/10 p-5 justify-between rounded-b-xl bg-gray-400 flex items-center">
-        <form action="" onSubmit={handleSubmit}>
-          <label htmlFor="file">
-            <input type="file" name="file" id="file" />
+      <div className="h-1/10 p-5  rounded-b-xl bg-gray-400 flex items-center">
+        <form
+          action=""
+          className="justify-between gap-2 items-center flex w-full"
+          onSubmit={handleSubmit}
+        >
+          <label htmlFor="file" className="">
+            <input
+              type="file"
+              name="file"
+              id="file"
+              className="hidden
+            "
+              multiple
+              onChange={handleFileChange}
+            />
             <IoAttach className="text-2xl" />
           </label>
+          <div>hello</div>
+          {previews?.map((p) => (
+            <div className="">
+              <img key={p} src={p.url} alt="images" />
+            </div>
+          ))}
           <input
             type="text"
             value={text}
             onChange={(e) => setText(e.target.value)}
-            className="rounded-lg w-4/5 h-7 bg-gray-100 p-1"
+            className="rounded-lg w-full bg-gray-100 p-1"
           />
           <SendHorizonal onClick={addMessage} className="cursor-pointer" />
         </form>
