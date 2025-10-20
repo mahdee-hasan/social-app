@@ -11,39 +11,54 @@ const MessageBody = () => {
   const conId = useChatStore((s) => s.openedChat);
   const bottomRef = useRef(null);
   const [text, setText] = useState("");
-  const addMessage = () => {
-    const bodyObject = { text, conId };
-  };
+
   const handleFileChange = (e) => {
     const selected = Array.from(e.target.files);
     if (selected.length > 5) return alert("You can upload up to 5 files only.");
     setFiles(selected);
   };
+
   useEffect(() => {
     if (!files.length) {
       setPreviews([]);
       return;
     }
-
     const objectUrls = files.map((file) => ({
       name: file.name,
       url: URL.createObjectURL(file),
       type: file.type,
     }));
-
     setPreviews(objectUrls);
-
-    // Revoke URLs when component unmounts or files change
     return () => objectUrls.forEach((p) => URL.revokeObjectURL(p.url));
   }, [files]);
-  const handleSubmit = async () => {
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    if (!text.trim() && !files.length)
+      return alert("Write something or attach files");
+
+    const body = new FormData();
+    body.append("conId", conId);
+    body.append("text", text);
+    files.forEach((file) => body.append("files", file));
+
     try {
-    } catch (error) {}
+      console.log("Sending:", body);
+      setText("");
+      setFiles([]);
+      setPreviews([]);
+    } catch (error) {
+      console.error(error);
+    }
   };
+
   useEffect(() => {
-    bottomRef.current?.scrollIntoView({ behavior: "smooth" });
+    setTimeout(
+      () => bottomRef.current?.scrollIntoView({ behavior: "smooth" }),
+      100
+    );
   }, [message]);
-  console.log(files, previews);
+
   return (
     <>
       <div className="h-9/10 max-h-9/10 flex flex-col justify-end">
@@ -61,7 +76,7 @@ const MessageBody = () => {
               <div
                 className="w-8/12 h-8 mb-2 rounded-tl-lg rounded-br-lg bg-gray-600 drop-down"
                 style={{
-                  animationDelay: `${(arr.length - 1 - i) * 0.1}s`, // reverse delay
+                  animationDelay: `${(arr.length - 1 - i) * 0.1}s`,
                 }}
               ></div>
               {i % 2 !== 0 && (
@@ -69,42 +84,49 @@ const MessageBody = () => {
               )}
             </div>
           ))}
-
           <div ref={bottomRef} />
         </div>
       </div>
 
-      <div className="h-1/10 p-5  rounded-b-xl bg-gray-400 flex items-center">
+      <div className="h-1/10 p-5 rounded-b-xl bg-gray-400 flex items-center">
         <form
-          action=""
           className="justify-between gap-2 items-center flex w-full"
           onSubmit={handleSubmit}
         >
-          <label htmlFor="file" className="">
+          <label htmlFor="file" className="cursor-pointer">
+            <IoAttach className="text-2xl" />
             <input
               type="file"
               name="file"
               id="file"
-              className="hidden
-            "
+              className="hidden"
               multiple
               onChange={handleFileChange}
             />
-            <IoAttach className="text-2xl" />
           </label>
-          <div>hello</div>
-          {previews?.map((p) => (
-            <div className="">
-              <img key={p} src={p.url} alt="images" />
-            </div>
-          ))}
+
+          <div className="flex gap-2">
+            {previews.map((p) => (
+              <div key={p.url} className="w-16 h-16">
+                <img
+                  src={p.url}
+                  alt={p.name}
+                  className="object-cover w-full h-full rounded"
+                />
+              </div>
+            ))}
+          </div>
+
           <input
             type="text"
             value={text}
             onChange={(e) => setText(e.target.value)}
             className="rounded-lg w-full bg-gray-100 p-1"
+            placeholder="Type a message..."
           />
-          <SendHorizonal onClick={addMessage} className="cursor-pointer" />
+          <button type="submit">
+            <SendHorizonal className="cursor-pointer" />
+          </button>
         </form>
       </div>
     </>
