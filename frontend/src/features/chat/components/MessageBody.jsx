@@ -5,16 +5,18 @@ import { FaUser } from "react-icons/fa";
 import { IoAttach } from "react-icons/io5";
 import { IoClose } from "react-icons/io5";
 
+const userId = useUserStore.getState().userObjectId;
+const textArray = [
+  { text: "hello", _id: "01", sender: { _id: userId, name: "client" } },
+  { text: "hi", _id: "02", sender: { _id: "01", name: "client_2" } },
+];
 const MessageBody = () => {
   const [message] = useState([0, 1, 2, 3, 4, 5, 6]);
-  const [realMessage, setRealMessage] = useState([
-    { text: "hello", _id: "01", sender: { _id: userId, name: "client" } },
-    { text: "hi", _id: "02", sender: { _id: "01", name: "client_2" } },
-  ]);
+  const [realMessage, setRealMessage] = useState(textArray);
   const [files, setFiles] = useState([]);
   const [previews, setPreviews] = useState([]);
   const conId = useChatStore((s) => s.openedChat);
-  const userId = useUserStore((s) => s.userObjectId);
+
   const bottomRef = useRef(null);
   const [text, setText] = useState("");
   const fileInputRef = useRef(null);
@@ -60,6 +62,17 @@ const MessageBody = () => {
     if (!text.trim() && !files.length)
       return alert("Write something or attach files");
 
+    const messageObject = {
+      text,
+      images: previews,
+      _id: realMessage.length + 1,
+      sender: { _id: userId, name: "client" },
+    };
+    setRealMessage((prev) => [...prev, messageObject]);
+    setText("");
+    setPreviews([]);
+    setFiles([]);
+    return;
     const body = new FormData();
     body.append("conId", conId);
     body.append("text", text);
@@ -93,7 +106,7 @@ const MessageBody = () => {
             >
               {i % 2 === 0 && <FaUser className="rounded-full ring text-2xl" />}
               <div
-                className="w-8/12 h-8 mb-2 rounded-tl-lg rounded-br-lg bg-gray-600"
+                className="w-8/12 h-8 mb-2 rounded-tl-lg drop-down rounded-br-lg bg-gray-600"
                 style={{ animationDelay: `${(arr.length - 1 - i) * 0.1}s` }}
               />
               {i % 2 !== 0 && (
@@ -102,25 +115,66 @@ const MessageBody = () => {
             </div>
           ))}
         {realMessage.length > 0 &&
-          realMessage.map(m, (i) => (
+          realMessage.map((m, i) => (
             <div
               key={m._id}
-              className={`flex items-center gap-2 mx-1 animate-pulse ${
-                m.sender._id === userId ? "justify-start" : "justify-end"
+              className={`flex items-center gap-2 mx-1  ${
+                m.sender._id !== userId ? "justify-start" : "justify-end"
               }`}
             >
               {m.sender._id !== userId && (
-                <FaUser className="rounded-full ring text-2xl" />
+                <FaUser
+                  className="rounded-full ring text-2xl  drop-down"
+                  style={{
+                    animationDelay: `${(textArray.length - 1 - i) * 0.1}s`,
+                  }}
+                />
               )}
               <div
-                className="w-8/12 h-8 mb-2 rounded-tl-lg rounded-br-lg bg-gray-600"
+                className="max-w-8/12 drop-down flex flex-col "
                 style={{
-                  animationDelay: `${(realMessage.length - 1 - i) * 0.1}s`,
+                  animationDelay: `${(textArray.length - 1 - i) * 0.1}s`,
                 }}
-              />
-              <p>{m.text}</p>
+              >
+                {" "}
+                <div
+                  className={`max-w-full min-h-8 p-1  border-black border-[0.5px] mb-2 rounded-lg ${
+                    m.sender._id === userId
+                      ? "rounded-br-none bg-blue-400 text-white"
+                      : "rounded-bl-none bg-white text-black "
+                  }`}
+                >
+                  {" "}
+                  <p className="px-3 max-w-full">{m.text}</p>
+                </div>
+                {m.images && (
+                  <div
+                    className={`max-w-full gap-0.5 flex justify-between  border-black border-[0.5px] mb-2 rounded-lg ${
+                      m.sender._id === userId
+                        ? "rounded-br-none bg-blue-400 text-white"
+                        : "rounded-bl-none bg-white text-black "
+                    }`}
+                  >
+                    {m.images.map((image, i2) => (
+                      <img
+                        onClick={() => window.open(image.url, "_blank")}
+                        src={image.url}
+                        key={i2}
+                        alt="images"
+                        className={`max-h-40 cursor-pointer rounded-lg max-w-1/${m.images.length} `}
+                      />
+                    ))}
+                  </div>
+                )}
+              </div>
+
               {m.sender._id === userId && (
-                <FaUser className="rounded-full ring text-gray-400 text-2xl" />
+                <FaUser
+                  className="rounded-full ring  drop-down text-gray-400 text-2xl"
+                  style={{
+                    animationDelay: `${(textArray.length - 1 - i) * 0.1}s`,
+                  }}
+                />
               )}
             </div>
           ))}
