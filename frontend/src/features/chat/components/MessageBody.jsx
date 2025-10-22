@@ -1,4 +1,4 @@
-import { useChatStore } from "@/app/store";
+import { useChatStore, useUserStore } from "@/app/store";
 import { SendHorizonal } from "lucide-react";
 import React, { useRef, useState } from "react";
 import { FaUser } from "react-icons/fa";
@@ -7,9 +7,14 @@ import { IoClose } from "react-icons/io5";
 
 const MessageBody = () => {
   const [message] = useState([0, 1, 2, 3, 4, 5, 6]);
+  const [realMessage, setRealMessage] = useState([
+    { text: "hello", _id: "01", sender: { _id: userId, name: "client" } },
+    { text: "hi", _id: "02", sender: { _id: "01", name: "client_2" } },
+  ]);
   const [files, setFiles] = useState([]);
   const [previews, setPreviews] = useState([]);
   const conId = useChatStore((s) => s.openedChat);
+  const userId = useUserStore((s) => s.userObjectId);
   const bottomRef = useRef(null);
   const [text, setText] = useState("");
   const fileInputRef = useRef(null);
@@ -78,7 +83,7 @@ const MessageBody = () => {
     <div className="relative flex flex-col h-full">
       {/* Chat messages */}
       <div className="flex-1 flex flex-col justify-end overflow-y-auto p-2">
-        {previews.length === 0 &&
+        {realMessage.length === 0 &&
           message.map((i, _, arr) => (
             <div
               key={i}
@@ -92,6 +97,29 @@ const MessageBody = () => {
                 style={{ animationDelay: `${(arr.length - 1 - i) * 0.1}s` }}
               />
               {i % 2 !== 0 && (
+                <FaUser className="rounded-full ring text-gray-400 text-2xl" />
+              )}
+            </div>
+          ))}
+        {realMessage.length > 0 &&
+          realMessage.map(m, (i) => (
+            <div
+              key={m._id}
+              className={`flex items-center gap-2 mx-1 animate-pulse ${
+                m.sender._id === userId ? "justify-start" : "justify-end"
+              }`}
+            >
+              {m.sender._id !== userId && (
+                <FaUser className="rounded-full ring text-2xl" />
+              )}
+              <div
+                className="w-8/12 h-8 mb-2 rounded-tl-lg rounded-br-lg bg-gray-600"
+                style={{
+                  animationDelay: `${(realMessage.length - 1 - i) * 0.1}s`,
+                }}
+              />
+              <p>{m.text}</p>
+              {m.sender._id === userId && (
                 <FaUser className="rounded-full ring text-gray-400 text-2xl" />
               )}
             </div>
