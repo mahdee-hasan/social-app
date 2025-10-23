@@ -8,7 +8,7 @@ const ConversationDrawer = () => {
   return (
     <div
       className={`w-85 z-50 bg-white rounded-xl right-5 h-100 ring-2 fixed bottom-3 flex-col ${
-        show ? "hidden" : "hidden"
+        show ? "flex" : "hidden"
       }`}
     >
       <div className="flex rounded-t-xl gap-2 h-12 justify-between px-3 bg-gray-500 items-center w-full">
@@ -27,7 +27,7 @@ const ConversationDrawer = () => {
           />
         </div>
       </div>
-      <div className="h-87">
+      <div className="h-90">
         {" "}
         <MessageBody />
       </div>

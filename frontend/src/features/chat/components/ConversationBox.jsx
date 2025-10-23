@@ -58,7 +58,7 @@ const ConversationBox = () => {
   };
   return conversation ? (
     <div className="w-3/4 rounded-xl flex flex-col ring h-full">
-      <div className="bg-gray-300 rounded-t-xl flex items-center-safe h-16 w-full">
+      <div className="bg-gray-300 rounded-t-xl flex items-center-safe h-[10vh] w-full">
         <div className="flex  justify-between w-full items-center px-10  gap-2">
           <div className="flex items-center gap-1">
             {" "}
@@ -87,7 +87,7 @@ const ConversationBox = () => {
           </div>
         </div>
       </div>
-      <div className="flex flex-col  h-[80vh] justify-end">
+      <div className="flex flex-col  h-[75vh] justify-end">
         <MessageBody />
       </div>
     </div>

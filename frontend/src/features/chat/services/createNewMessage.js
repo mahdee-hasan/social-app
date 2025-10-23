@@ -4,7 +4,7 @@ const createNewMessage = async (bodyObject) => {
   try {
     const res = await api.post("/api/inbox/message", bodyObject, {
       headers: {
-        "Content-Type": "multipart-formdata",
+        "Content-Type": "multipart/formdata",
       },
     });
     if (res.status === 201) {
