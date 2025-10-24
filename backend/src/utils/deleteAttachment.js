@@ -1,10 +1,10 @@
-const cloudinary = require("../config/cloudinaryConfig");
-const message = require("../models/message");
+import cloudinary from "../config/cloudinaryConfig.js";
+import Message from "../models/message.model.js";
 
 const deleteUsersConversation = async (conversationId) => {
   try {
     // Step 2: Find all attachments
-    const attachments = await message.find(
+    const attachments = await Message.find(
       { conversation_id: conversationId },
       "attachment"
     );
@@ -29,7 +29,7 @@ const deleteUsersConversation = async (conversationId) => {
 
     // Step 4: Delete messages
     try {
-      await message.deleteMany({ conversation_id: conversationId });
+      Message.deleteMany({ conversation_id: conversationId });
     } catch (error) {
       throw new Error("message delete error:", error.message);
     }
@@ -40,4 +40,4 @@ const deleteUsersConversation = async (conversationId) => {
   }
 };
 
-module.exports = deleteUsersConversation;
+export default deleteUsersConversation;

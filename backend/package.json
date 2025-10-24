@@ -3,6 +3,7 @@
   "version": "1.0.0",
   "description": "this is my first project with backend",
   "main": "index.js",
+  "type": "module",
   "scripts": {
     "dev": "dotenvx run -f .env.development -- nodemon src/index.js",
     "start": "dotenvx run -f .env.production -- node src/index.js"
