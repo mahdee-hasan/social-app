@@ -13,7 +13,10 @@ export const setupSocket = (server, allowedOrigins) => {
 
   io.on("connection", async (socket) => {
     // Handle disconnect
-    socket.on("disconnect", async () => {});
+    console.log("connected");
+    socket.on("disconnect", async () => {
+      console.log("disconnected");
+    });
   });
 
   console.log("🔥 Socket.IO initialized with Firebase auth");
