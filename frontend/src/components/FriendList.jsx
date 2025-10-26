@@ -4,11 +4,12 @@ import React, { useEffect, useState } from "react";
 import { Button } from "./ui/button";
 import { useNavigate } from "react-router";
 
-const FriendList = () => {
+const FriendList = ({ uid }) => {
+  console.log(uid);
   const [friends, setFriends] = useState([]);
   const navigate = useNavigate();
   const gettingFriends = async () => {
-    const res = await getFriends();
+    const res = await getFriends(uid);
 
     if (res.success) {
       setFriends(res.friends);

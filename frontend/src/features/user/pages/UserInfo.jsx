@@ -15,6 +15,7 @@ import Post from "@/components/Post";
 import getUser from "@/services/getUser";
 import FriendList from "@/components/FriendList";
 import getOtherUser from "@/services/getOtherUser";
+import { useParams } from "react-router";
 
 const navItem = [
   { sr: 1, name: "post" },
@@ -26,9 +27,9 @@ const UserInfo = () => {
   const [user, setUser] = useState(null);
   const [error, setError] = useState(null);
   const [loading, setLoading] = useState(true);
-
+  const { uid } = useParams();
   const loadUser = async () => {
-    const data = await getOtherUser();
+    const data = await getOtherUser(uid);
     if (data.success) {
       setUser(data.user);
     }
@@ -36,12 +37,12 @@ const UserInfo = () => {
 
   useEffect(() => {
     loadUser();
-  }, [user]);
+  }, [uid]);
 
   const renderContent = () => {
     switch (activeTab) {
       case "friends":
-        return <FriendList />;
+        return <FriendList uid={uid} />;
 
       case "about":
         return <AboutUser />;

@@ -13,9 +13,11 @@ export const setupSocket = (server, allowedOrigins) => {
 
   io.on("connection", async (socket) => {
     // Handle disconnect
-    console.log("connected");
+    const { userOid } = socket.handshake.query;
+
+    console.log("connected", userOid);
     socket.on("disconnect", async () => {
-      console.log("disconnected");
+      console.log("disconnected", userOid);
     });
   });
 

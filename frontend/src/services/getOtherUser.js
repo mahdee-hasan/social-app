@@ -2,7 +2,7 @@ import api from "@/axios";
 
 const getOtherUser = async (uid) => {
   try {
-    const res = await api.get(`/api/user/get-user/:${uid}`);
+    const res = await api.get(`/api/user/get-user/${uid}`);
     return { user: res.data, error: null, success: true };
   } catch (err) {
     // Axios error may contain response info

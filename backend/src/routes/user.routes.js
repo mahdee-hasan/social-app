@@ -1,13 +1,17 @@
 import express from "express";
 import checkAuth from "../middlewares/checkAuth.js";
-import { getMe, getOtherUser } from "../controllers/user.controller.js";
+import {
+  getFriends,
+  getMe,
+  getOtherUser,
+} from "../controllers/user.controller.js";
 
 const router = express.Router();
 
 router.get("/", checkAuth, getMe);
 
 router.get("/get-user/:uid", checkAuth, getOtherUser);
-
+router.get("/friends/:uid", checkAuth, getFriends);
 // router.post(
 //   "/cover",
 //   checkAuth,
@@ -15,7 +19,7 @@ router.get("/get-user/:uid", checkAuth, getOtherUser);
 //   cloudinaryCoverUploader,
 //   setCover
 // );
-// router.get("/friends", checkAuth, getFriends);
+
 // router.get("/friend-request", checkAuth, getFriendRequest);
 // router.get("/requested-friend", checkAuth, getRequestedFriend);
 // router.post("/friends", checkAuth, doFriendRequest);

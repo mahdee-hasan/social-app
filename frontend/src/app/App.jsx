@@ -5,6 +5,7 @@ import { useUserStore } from "./store";
 import { getAuth, onAuthStateChanged } from "firebase/auth";
 import { useEffect, useState } from "react";
 import getUser from "@/services/getUser";
+import SocketConnector from "@/components/socketConnector";
 
 function App() {
   const [isLoading, setIsLoading] = useState(true);
@@ -29,6 +30,7 @@ function App() {
       setIsLoading(false);
     }
   };
+
   const unsubscribe = onAuthStateChanged(auth, async (firebaseUser) => {
     try {
       if (firebaseUser) {
@@ -56,6 +58,7 @@ function App() {
   useEffect(() => {
     loadUser();
   }, [uid]);
+
   if (isLoading) {
     return <p>fetching user....</p>;
   }
@@ -64,6 +67,7 @@ function App() {
   }
   return (
     <BrowserRouter>
+      <SocketConnector />
       <AppRoutes />
     </BrowserRouter>
   );

@@ -49,7 +49,7 @@ const User = () => {
   const renderContent = () => {
     switch (activeTab) {
       case "friends":
-        return <FriendList />;
+        return <FriendList uid={uid} />;
 
       case "about":
         return <AboutUser />;

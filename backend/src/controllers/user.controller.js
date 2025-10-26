@@ -127,9 +127,9 @@ const getPost = async (req, res, next) => {
 };
 const getFriends = async (req, res, next) => {
   try {
-    const user = await people
-      .findOne({ uid: req.user.uid }, "friends")
-      .populate("friends");
+    const { uid } = req.params;
+
+    const user = await People.findOne({ uid }, "friends").populate("friends");
     res.status(200).json(user);
   } catch (error) {
     res.status(404).json({ message: error.message });
