@@ -5,7 +5,6 @@ import { Button } from "./ui/button";
 import { useNavigate } from "react-router";
 
 const FriendList = ({ uid }) => {
-  console.log(uid);
   const [friends, setFriends] = useState([]);
   const navigate = useNavigate();
   const gettingFriends = async () => {
@@ -17,7 +16,7 @@ const FriendList = ({ uid }) => {
   };
   useEffect(() => {
     gettingFriends();
-  }, []);
+  }, [uid]);
 
   return (
     <div>

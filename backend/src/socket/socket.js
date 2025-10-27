@@ -1,5 +1,5 @@
 import { Server } from "socket.io";
-
+import People from "./../models/people.model.js";
 export const setupSocket = (server, allowedOrigins) => {
   const io = new Server(server, {
     cors: {
@@ -15,11 +15,9 @@ export const setupSocket = (server, allowedOrigins) => {
     // Handle disconnect
     const { userOid } = socket.handshake.query;
 
-    console.log("connected", userOid);
+    await People.findByIdAndUpdate(userOid, { active: true });
     socket.on("disconnect", async () => {
-      console.log("disconnected", userOid);
+      await People.findByIdAndUpdate(userOid, { active: true });
     });
   });
-
-  console.log("🔥 Socket.IO initialized with Firebase auth");
 };

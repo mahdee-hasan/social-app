@@ -73,7 +73,9 @@ const InboxMenu = () => {
         </p>
         {conversations?.map((con, i, arr) => (
           <div
-            onClick={() => setConId(con._id)}
+            onClick={() => {
+              setConId(con._id);
+            }}
             className="w-11/12 flex gap-1 drop-down rounded p-1
              items-center cursor-pointer bg-gray-400 h-18"
             key={con._id}

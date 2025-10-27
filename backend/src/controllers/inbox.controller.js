@@ -35,12 +35,14 @@ const getOneConversation = async (req, res, next) => {
     const selectedConversation = await Conversation.findById(
       req.params.id
     ).populate("participants");
+
     if (!Conversation) {
       res.status(404).json({ error: "Conversation not found" });
     } else {
-      res.status(200).json({ Conversation: selectedConversation });
+      res.status(200).json({ conversation: selectedConversation });
     }
   } catch (error) {
+    console.log(error.message);
     res.status(500).json({ error: error.Message });
   }
 };

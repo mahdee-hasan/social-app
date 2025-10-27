@@ -12,6 +12,7 @@ const ConversationBox = () => {
   const userId = useUserStore((s) => s.userObjectId);
   const [isLoading, setIsLoading] = useState(true);
   const [conversation, setConversation] = useState(null);
+
   const gettingCon = async () => {
     const data = await getOneConversation(conId);
     if (data.success) {
@@ -23,6 +24,13 @@ const ConversationBox = () => {
   useEffect(() => {
     gettingCon();
   }, [conId]);
+  const getOpponents = (value) => {
+    const opponent =
+      value.participants[0]._id === userId
+        ? value.participants[1]
+        : value.participants[0];
+    return opponent;
+  };
   if (isLoading) {
     return (
       <div className="w-3/4 rounded-xl flex flex-col ring h-full">
@@ -49,13 +57,7 @@ const ConversationBox = () => {
       </div>
     );
   }
-  const getOpponents = (value) => {
-    const opponent =
-      value.participants[0]._id === userId
-        ? value.participants[1]
-        : value.participants[0];
-    return opponent;
-  };
+
   return conversation ? (
     <div className="w-3/4 rounded-xl flex flex-col ring h-full">
       <div className="bg-gray-300 rounded-t-xl flex items-center-safe h-[10vh] w-full">
@@ -88,7 +90,7 @@ const ConversationBox = () => {
         </div>
       </div>
       <div className="flex flex-col  h-[75vh] justify-end">
-        <MessageBody />
+        <MessageBody opponent={getOpponents(conversation)} />
       </div>
     </div>
   ) : (

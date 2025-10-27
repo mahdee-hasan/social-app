@@ -83,7 +83,9 @@ const UserInfo = () => {
               <User2 className="w-32 h-32 rounded-full bg-gray-200 ring-2" />
             )}
 
-            <div className="absolute bottom-2 right-2 bg-green-500 w-6 h-6 rounded-full border-2 border-white"></div>
+            {user?.active && (
+              <div className="absolute bottom-2 right-2 bg-green-500 w-6 h-6 rounded-full border-2 border-white"></div>
+            )}
           </div>
         </div>
       </div>

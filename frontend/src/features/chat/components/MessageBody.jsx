@@ -3,15 +3,16 @@ import { SendHorizonal } from "lucide-react";
 import React, { useEffect, useRef, useState } from "react";
 import { FaUser } from "react-icons/fa";
 import { IoAttach } from "react-icons/io5";
-import { IoClose } from "react-icons/io5";
 import createNewMessage from "../services/createNewMessage";
+import getUser from "@/services/getUser";
 
 const userId = useUserStore.getState().userObjectId;
 const textArray = [
   { text: "hello", _id: "01", sender: { _id: userId, name: "client" } },
   { text: "hi", _id: "02", sender: { _id: "01", name: "client_2" } },
 ];
-const MessageBody = () => {
+const MessageBody = ({ opponent }) => {
+  const [user, setUser] = useState({});
   const [realMessage, setRealMessage] = useState(textArray);
   const [files, setFiles] = useState([]);
   const [previews, setPreviews] = useState([]);
@@ -74,7 +75,11 @@ const MessageBody = () => {
     body.append("conId", conId);
     body.append("text", text);
     files.forEach((file) => body.append("files", file));
-
+    setText("");
+    setFiles([]);
+    previews.forEach((p) => URL.revokeObjectURL(p.url));
+    setPreviews([]);
+    return;
     try {
       const feedBack = await createNewMessage(body);
       if (!feedBack.success) {
@@ -88,11 +93,19 @@ const MessageBody = () => {
       console.error(error);
     }
   };
+  const gettingUser = async () => {
+    const data = await getUser();
+    if (!data.error) {
+      setUser(data.user);
+    }
+  };
   useEffect(() => {
     bottomRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [realMessage]);
-
-  if (isLoading) {
+  useEffect(() => {
+    gettingUser();
+  }, [conId]);
+  if (isLoading || !opponent) {
     return (
       <>
         {[0, 1, 2, 3, 4, 5, 6].map((i, _, arr) => (
@@ -158,14 +171,24 @@ const MessageBody = () => {
                   m.sender._id !== userId ? "justify-start" : "justify-end"
                 }`}
               >
-                {m.sender._id !== userId && (
-                  <FaUser
-                    className="rounded-full ring text-2xl  drop-down"
-                    style={{
-                      animationDelay: `${(textArray.length - 1 - i) * 0.1}s`,
-                    }}
-                  />
-                )}
+                {m.sender._id !== userId &&
+                  (opponent.avatar ? (
+                    <img
+                      src={opponent.avatar}
+                      alt="user"
+                      className="rounded-full ring h-6 w-6  drop-down"
+                      style={{
+                        animationDelay: `${(textArray.length - 1 - i) * 0.1}s`,
+                      }}
+                    />
+                  ) : (
+                    <FaUser
+                      className="rounded-full ring text-2xl  drop-down"
+                      style={{
+                        animationDelay: `${(textArray.length - 1 - i) * 0.1}s`,
+                      }}
+                    />
+                  ))}
                 <div
                   className="max-w-8/12 drop-down flex flex-col "
                   style={{
@@ -217,14 +240,24 @@ const MessageBody = () => {
                   )}
                 </div>
 
-                {m.sender._id === userId && (
-                  <FaUser
-                    className="rounded-full ring  drop-down text-gray-400 text-2xl"
-                    style={{
-                      animationDelay: `${(textArray.length - 1 - i) * 0.1}s`,
-                    }}
-                  />
-                )}
+                {m.sender._id === userId &&
+                  (user?.avatar ? (
+                    <img
+                      src={user.avatar}
+                      alt="user"
+                      className="rounded-full ring h-6 w-6  drop-down"
+                      style={{
+                        animationDelay: `${(textArray.length - 1 - i) * 0.1}s`,
+                      }}
+                    />
+                  ) : (
+                    <FaUser
+                      className="rounded-full ring  drop-down text-gray-400 text-2xl"
+                      style={{
+                        animationDelay: `${(textArray.length - 1 - i) * 0.1}s`,
+                      }}
+                    />
+                  ))}
               </div>
             ))}
           <div ref={bottomRef} />
