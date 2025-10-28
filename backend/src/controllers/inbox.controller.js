@@ -183,7 +183,7 @@ const deleteConversation = async (req, res, next) => {
 };
 
 const sendMessage = async (req, res, next) => {
-  if (!req.body.text && !req.uploadedFiles) {
+  if (!req.body.text && !req.uploadArray) {
     res.status(400).json({ Message: "Message cant be null" });
   }
   try {
@@ -199,7 +199,7 @@ const sendMessage = async (req, res, next) => {
 
     const newMessage = new Message({
       text: req.body.text,
-      attachment: req.uploadedFiles,
+      attachment: req.uploadArray,
       sender: sender._id,
       receiver: receiver._id,
       conversation_id: selectedConversation._id,
@@ -235,38 +235,30 @@ const sendMessage = async (req, res, next) => {
 
 const getMessage = async (req, res, next) => {
   try {
-    const selectedConversation = await Conversation.findById(
-      req.params.conversation_id,
-      "participant_1 participant_2"
-    );
-    let updateField;
-    if (selectedConversation.participant_1.id.equals(req.user.userId)) {
-      updateField = "participant_1.unseenCount";
-    } else if (selectedConversation.participant_2.id.equals(req.user.userId)) {
-      updateField = "participant_2.unseenCount";
-    }
-    let updatedCon = {};
-    if (updateField) {
-      updatedCon = await Conversation.findByIdAndUpdate(
-        req.params.conversation_id,
-        {
-          $set: { [updateField]: 0 },
-        },
-        { new: true }
-      );
-    }
-    const messages = await Message.find({
-      conversation_id: req.params.conversation_id,
-      deletedFor: { $nin: [req.user.userId] },
+    const user = await People.findOne({ uid: req.user.uid }, "_id");
+
+    // Reset unread count for this user
+    await Conversation.findByIdAndUpdate(req.params.conId, {
+      $set: { [`unreadCounts.${user._id}`]: 0 },
     });
 
-    global.io.emit("get_message", { Message, updatedCon });
+    const messages = await Message.find({
+      conversation_id: req.params.conId,
+      deletedFor: { $nin: [user._id] },
+    })
+      .populate("sender")
+      .sort({ createdAt: -1 })
+      .limit(20);
+
     res.status(200).json(messages);
   } catch (error) {
-    console.log(error.Message);
-    res.json({ error: error.Message });
+    console.error(error);
+    res.status(500).json({ error: error.message });
   }
 };
+
+//use this for get message socket
+// global.io.emit("get_message", { Message, updatedCon });
 const getLastMessage = async (req, res, next) => {
   try {
     const messages = await Message.find({

@@ -20,7 +20,7 @@ const CreateNewCon = () => {
   const uid = useUserStore((s) => s.userUid);
   const gettingFriends = async () => {
     const data = await getFriends(uid);
-    console.log(uid, data);
+
     if (data.success) {
       setFriends(data.friends);
       setFilteredFriends(data.friends); // initialize both
@@ -85,7 +85,7 @@ const CreateNewCon = () => {
           ) : filteredFriends.length > 0 ? (
             filteredFriends.map((f) => (
               <div
-                onClick={CreateNew(f._id)}
+                onClick={() => CreateNew(f._id)}
                 className="w-full rounded-lg cursor-pointer gap-3 px-5 h-15 flex items-center bg-gray-200"
                 key={f._id}
               >

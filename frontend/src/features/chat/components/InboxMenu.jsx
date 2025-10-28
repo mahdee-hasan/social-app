@@ -4,6 +4,7 @@ import getAllConversation from "../services/getAllConversation";
 import { useChatStore, useUserStore } from "@/app/store";
 import { Plus, UserIcon } from "lucide-react";
 import CreateNewCon from "./CreateNewCon";
+import getOpponents from "../utils/getOpponents";
 
 const InboxMenu = () => {
   const [conversations, setConversations] = useState();
@@ -28,13 +29,6 @@ const InboxMenu = () => {
   useEffect(() => {
     getCon();
   }, [userId]);
-  const getOpponents = (value) => {
-    const opponent =
-      value.participants[0]._id === userId
-        ? value.participants[1]
-        : value.participants[0];
-    return opponent;
-  };
 
   if (loading) {
     return (

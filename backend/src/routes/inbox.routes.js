@@ -5,6 +5,7 @@ import {
   getInbox,
   sendMessage,
   getOneConversation,
+  getMessage,
 } from "../controllers/inbox.controller.js";
 import checkAuth from "../middlewares/checkAuth.js";
 import { multipleUploader } from "../middlewares/UploadToCloudinary/composedUploader.js";
@@ -19,7 +20,7 @@ router.post(
   multipleUploader("messageAttachment"),
   sendMessage
 );
-
+router.get("/message/:conId", checkAuth, getMessage);
 //not using
 // router.delete("/:id", checkAuth, deleteConversation);
 // router.post("/searchUser", checkAuth, searchUser);
@@ -32,6 +33,6 @@ router.post(
 // router.delete("/everyone/:id", checkAuth, deleteForEveryone);
 // router.delete("/forMe/:id", checkAuth, deleteForME);
 // router.post("/editMessage/:id", checkAuth, updateMessage);
-// router.get("/message/:conversation_id", checkAuth, getMessage);
+
 // router.get("/last-message", checkAuth, getLastMessage);
 export default router;

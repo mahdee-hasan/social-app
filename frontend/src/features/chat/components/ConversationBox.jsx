@@ -6,6 +6,7 @@ import { IoAttach, IoCall, IoVideocam } from "react-icons/io5";
 import MessageBody from "./MessageBody";
 import getOneConversation from "../services/getOneConversation";
 import { useChatStore, useUserStore } from "@/app/store";
+import getOpponents from "../utils/getOpponents";
 
 const ConversationBox = () => {
   const conId = useChatStore((s) => s.openedChat);
@@ -24,13 +25,7 @@ const ConversationBox = () => {
   useEffect(() => {
     gettingCon();
   }, [conId]);
-  const getOpponents = (value) => {
-    const opponent =
-      value.participants[0]._id === userId
-        ? value.participants[1]
-        : value.participants[0];
-    return opponent;
-  };
+
   if (isLoading) {
     return (
       <div className="w-3/4 rounded-xl flex flex-col ring h-full">

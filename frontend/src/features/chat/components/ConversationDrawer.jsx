@@ -4,6 +4,7 @@ import React, { useState, useEffect } from "react";
 import MessageBody from "./MessageBody";
 import getOneConversation from "../services/getOneConversation";
 import { useChatStore, useUserStore } from "@/app/store";
+import getOpponents from "../utils/getOpponents";
 
 const ConversationDrawer = () => {
   const conId = useChatStore((s) => s.openedChat);
@@ -23,13 +24,6 @@ const ConversationDrawer = () => {
     gettingCon();
   }, [conId]);
 
-  const getOpponents = (value) => {
-    const opponent =
-      value?.participants[0]._id === userId
-        ? value?.participants[1]
-        : value?.participants[0];
-    return opponent;
-  };
   const opponent = getOpponents(conversation);
   const [show, setShow] = useState(false);
   return (

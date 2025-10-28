@@ -1,19 +1,17 @@
 import { useChatStore, useUserStore } from "@/app/store";
-import { SendHorizonal } from "lucide-react";
+import { Dot, SendHorizonal } from "lucide-react";
 import React, { useEffect, useRef, useState } from "react";
 import { FaUser } from "react-icons/fa";
 import { IoAttach } from "react-icons/io5";
 import createNewMessage from "../services/createNewMessage";
 import getUser from "@/services/getUser";
+import getMessage from "../services/getMessage";
+import formatDate from "@/utils/formatDate";
 
-const userId = useUserStore.getState().userObjectId;
-const textArray = [
-  { text: "hello", _id: "01", sender: { _id: userId, name: "client" } },
-  { text: "hi", _id: "02", sender: { _id: "01", name: "client_2" } },
-];
 const MessageBody = ({ opponent }) => {
+  const userId = useUserStore((s) => s.userObjectId);
   const [user, setUser] = useState({});
-  const [realMessage, setRealMessage] = useState(textArray);
+  const [realMessage, setRealMessage] = useState([]);
   const [files, setFiles] = useState([]);
   const [previews, setPreviews] = useState([]);
   const conId = useChatStore((s) => s.openedChat);
@@ -22,6 +20,12 @@ const MessageBody = ({ opponent }) => {
   const [text, setText] = useState("");
   const fileInputRef = useRef(null);
 
+  const gettingMessage = async () => {
+    const data = await getMessage(conId);
+    if (data.success) {
+      setRealMessage(data.message);
+    }
+  };
   const handleFileChange = (e) => {
     const selected = Array.from(e.target.files || []);
     if (!selected.length) return;
@@ -34,7 +38,7 @@ const MessageBody = ({ opponent }) => {
     // create preview URLs
     const urls = newFiles.map((file) => ({
       name: file.name,
-      url: URL.createObjectURL(file),
+      secure_url: URL.createObjectURL(file),
       type: file.type,
     }));
 
@@ -46,7 +50,7 @@ const MessageBody = ({ opponent }) => {
 
   const removePreview = (index) => {
     // revoke the object URL to free memory
-    URL.revokeObjectURL(previews[index].url);
+    URL.revokeObjectURL(previews[index].secure_url);
 
     const newFiles = [...files];
     newFiles.splice(index, 1);
@@ -65,22 +69,24 @@ const MessageBody = ({ opponent }) => {
 
     const messageObject = {
       text,
-      images: previews,
+      attachment: previews,
       _id: realMessage.length + 1,
       sender: { _id: userId, name: "client" },
+      createdAt: Date.now(),
+      status: "sending",
     };
-    setRealMessage((prev) => [...prev, messageObject]);
+    setRealMessage((prev) => [messageObject, ...prev]);
 
     const body = new FormData();
     body.append("conId", conId);
     body.append("text", text);
     body.append("receiver", opponent._id);
     files.forEach((file) => body.append("files", file));
-    // setText("");
-    // setFiles([]);
-    // previews.forEach((p) => URL.revokeObjectURL(p.url));
-    // setPreviews([]);
-    // return;
+    setText("");
+    setFiles([]);
+    previews.forEach((p) => URL.revokeObjectURL(p.url));
+    setPreviews([]);
+
     try {
       const feedBack = await createNewMessage(body);
       if (!feedBack.success) {
@@ -89,10 +95,6 @@ const MessageBody = ({ opponent }) => {
     } catch (error) {
       console.error(error);
     } finally {
-      setText("");
-      setFiles([]);
-      previews.forEach((p) => URL.revokeObjectURL(p.url));
-      setPreviews([]);
     }
   };
   const gettingUser = async () => {
@@ -106,7 +108,8 @@ const MessageBody = ({ opponent }) => {
   }, [realMessage]);
   useEffect(() => {
     gettingUser();
-  }, [conId]);
+    gettingMessage();
+  }, [conId, userId]);
   if (isLoading || !opponent) {
     return (
       <>
@@ -164,105 +167,128 @@ const MessageBody = ({ opponent }) => {
           previews.length > 0 ? "h-19/24" : "h-21/24"
         }`}
       >
-        <div className=" flex max-h-full flex-col  overflow-y-scroll scrollbar-hide p-2">
+        <div className=" flex max-h-full flex-col-reverse  overflow-y-scroll scrollbar-hide p-2">
+          <div ref={bottomRef} />
           {realMessage.length > 0 &&
             realMessage.map((m, i) => (
               <div
                 key={m._id}
-                className={`flex items-end-safe mb-2 gap-2 mx-1  ${
+                className={`flex relative items-end-safe mb-5 gap-2 mx-1  ${
                   m.sender._id !== userId ? "justify-start" : "justify-end"
                 }`}
               >
-                {m.sender._id !== userId &&
-                  (opponent.avatar ? (
-                    <img
-                      src={opponent.avatar}
-                      alt="user"
-                      className="rounded-full ring h-6 w-6  drop-down"
-                      style={{
-                        animationDelay: `${(textArray.length - 1 - i) * 0.1}s`,
-                      }}
-                    />
-                  ) : (
-                    <FaUser
-                      className="rounded-full ring text-2xl  drop-down"
-                      style={{
-                        animationDelay: `${(textArray.length - 1 - i) * 0.1}s`,
-                      }}
-                    />
-                  ))}
-                <div
-                  className="max-w-8/12 drop-down flex flex-col "
-                  style={{
-                    animationDelay: `${(textArray.length - 1 - i) * 0.1}s`,
-                  }}
-                >
-                  {m.text?.length > 0 && (
-                    <div
-                      className={`max-w-full min-h-8 p-1  border-black border-[0.5px] rounded-lg ${
-                        m.sender._id === userId
-                          ? "rounded-br-none bg-blue-400 text-white"
-                          : "rounded-bl-none bg-white text-black "
-                      }`}
-                    >
-                      {" "}
-                      <p className="px-3 max-w-full">{m.text}</p>
-                    </div>
-                  )}
-                  {m.images?.length > 0 && (
-                    <div
-                      className={`max-w-full flex flex-wrap border-black border-[0.5px] rounded-lg overflow-hidden ${
-                        m.sender._id === userId
-                          ? "rounded-br-none bg-blue-400 text-white"
-                          : "rounded-bl-none bg-white text-black"
-                      }`}
-                      style={{ gap: "3px" }}
-                    >
-                      {m.images.map((image, i2) => {
-                        const len = m.images.length;
+                <>
+                  <div
+                    className={`absolute font-mono w-full items-center  gap-1 flex -bottom-5 ${
+                      m.sender._id === userId
+                        ? "justify-end mr-8"
+                        : "ml-8 justify-start"
+                    } `}
+                  >
+                    <p className="text-[10px]">{formatDate(m?.createdAt)}</p>
+                    <Dot />
+                    <p className="text-[10px] ">{m.status || "sent"}</p>
+                  </div>
+                  {m.sender._id !== userId &&
+                    (opponent.avatar ? (
+                      <img
+                        src={opponent.avatar}
+                        alt="user"
+                        className="rounded-full ring h-6 w-6  drop-down"
+                        style={{
+                          animationDelay: `${
+                            (realMessage.length - 1 - i) * 0.1
+                          }s`,
+                        }}
+                      />
+                    ) : (
+                      <FaUser
+                        className="rounded-full ring text-2xl  drop-down"
+                        style={{
+                          animationDelay: `${
+                            (realMessage.length - 1 - i) * 0.1
+                          }s`,
+                        }}
+                      />
+                    ))}
+                  <div
+                    className="max-w-8/12 drop-down flex flex-col "
+                    style={{
+                      animationDelay: `${(realMessage.length - 1 - i) * 0.1}s`,
+                    }}
+                  >
+                    {m.text?.length > 0 && (
+                      <div
+                        className={`max-w-full min-h-8 p-1  border-black border-[0.5px] rounded-lg ${
+                          m.sender._id === userId
+                            ? "rounded-br-none bg-blue-400 text-white"
+                            : "rounded-bl-none bg-white text-black "
+                        }`}
+                      >
+                        {" "}
+                        <p className="px-3 max-w-full">{m.text}</p>
+                      </div>
+                    )}
+                    {m.attachment?.length > 0 && (
+                      <div
+                        className={`max-w-full flex flex-wrap border-black border-[0.5px] rounded-lg overflow-hidden ${
+                          m.sender._id === userId
+                            ? "rounded-br-none bg-blue-400 text-white"
+                            : "rounded-bl-none bg-white text-black"
+                        }`}
+                        style={{ gap: "3px" }}
+                      >
+                        {m.attachment.map((image, i2) => {
+                          const len = m.attachment.length;
 
-                        // Width logic
-                        let widthClass = "w-full";
-                        if (len === 2) widthClass = "w-[calc(50%-1.5px)]";
-                        else if (len === 3)
-                          widthClass = "w-[calc(33.333%-2px)]";
-                        else if (len > 3) widthClass = "w-[calc(33.333%-2px)]";
+                          // Width logic
+                          let widthClass = "w-full";
+                          if (len === 2) widthClass = "w-[calc(50%-1.5px)]";
+                          else if (len === 3)
+                            widthClass = "w-[calc(33.333%-2px)]";
+                          else if (len > 3)
+                            widthClass = "w-[calc(33.333%-2px)]";
 
-                        return (
-                          <img
-                            onClick={() => window.open(image.url, "_blank")}
-                            src={image.url}
-                            key={i2}
-                            alt="image"
-                            className={`${widthClass} max-h-40 object-cover rounded-lg cursor-pointer`}
-                          />
-                        );
-                      })}
-                    </div>
-                  )}
-                </div>
-
-                {m.sender._id === userId &&
-                  (user?.avatar ? (
-                    <img
-                      src={user?.avatar}
-                      alt="user"
-                      className="rounded-full ring h-6 w-6  drop-down"
-                      style={{
-                        animationDelay: `${(textArray.length - 1 - i) * 0.1}s`,
-                      }}
-                    />
-                  ) : (
-                    <FaUser
-                      className="rounded-full ring  drop-down text-gray-400 text-2xl"
-                      style={{
-                        animationDelay: `${(textArray.length - 1 - i) * 0.1}s`,
-                      }}
-                    />
-                  ))}
+                          return (
+                            <img
+                              onClick={() =>
+                                window.open(image.secure_url, "_blank")
+                              }
+                              src={image.secure_url}
+                              key={i2}
+                              alt="image"
+                              className={`${widthClass} max-h-40 object-cover rounded-lg cursor-pointer`}
+                            />
+                          );
+                        })}
+                      </div>
+                    )}
+                  </div>
+                  {m.sender._id === userId &&
+                    (user?.avatar ? (
+                      <img
+                        src={user?.avatar}
+                        alt="user"
+                        className="rounded-full ring h-6 w-6  drop-down"
+                        style={{
+                          animationDelay: `${
+                            (realMessage.length - 1 - i) * 0.1
+                          }s`,
+                        }}
+                      />
+                    ) : (
+                      <FaUser
+                        className="rounded-full ring  drop-down text-gray-400 text-2xl"
+                        style={{
+                          animationDelay: `${
+                            (realMessage.length - 1 - i) * 0.1
+                          }s`,
+                        }}
+                      />
+                    ))}
+                </>
               </div>
             ))}
-          <div ref={bottomRef} />
         </div>
       </div>
 
