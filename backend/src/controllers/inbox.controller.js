@@ -1,5 +1,5 @@
 import escapeRegExp from "../utils/escapeRegexp.js";
-import people from "../models/people.model.js";
+
 import Conversation from "../models/conversation.model.js";
 import Message from "../models/message.model.js";
 import fs from "fs";
@@ -7,6 +7,7 @@ import path from "path";
 import cloudinary from "../config/cloudinaryConfig.js";
 import deleteUsersConversation from "../utils/deleteAttachment.js";
 import mongoose from "mongoose";
+import People from "../models/people.model.js";
 //get inbox
 const getInbox = async (req, res, next) => {
   try {
@@ -186,78 +187,44 @@ const sendMessage = async (req, res, next) => {
     res.status(400).json({ Message: "Message cant be null" });
   }
   try {
-    const selectedConversation = await Conversation.findById(
-      req.body.conversation_id
-    );
+    const selectedConversation = await Conversation.findById(req.body.conId);
 
     if (!selectedConversation) {
       return res.status(404).json({ Message: "Conversation not found" });
     }
 
-    const sender = await people.findOne(
-      { _id: req.user.userId },
-      "name avatar"
-    );
+    const sender = await People.findOne({ uid: req.user.uid }, "name avatar");
 
-    const participants = await people.find(
-      {
-        _id: {
-          $in: [
-            selectedConversation.participant_1.id,
-            selectedConversation.participant_2.id,
-          ],
-        },
-      },
-      "name avatar"
-    );
+    const receiver = await People.findById(req.body.receiver, "name avatar");
 
-    const receiver = participants.find((p) => !p._id.equals(sender._id));
-
-    // Check if receiver is participant_1 or participant_2 and update accordingly
-    let updateField;
-    if (receiver._id.equals(selectedConversation.participant_1.id)) {
-      updateField = "participant_1.unseenCount";
-    } else if (receiver._id.equals(selectedConversation.participant_2.id)) {
-      updateField = "participant_2.unseenCount";
-    }
-    let updatedCon = {};
-    if (updateField) {
-      updatedCon = await Conversation.findByIdAndUpdate(
-        req.body.conversation_id,
-        {
-          $inc: { [updateField]: 1 },
-        },
-        { new: true }
-      );
-    }
     const newMessage = new Message({
       text: req.body.text,
       attachment: req.uploadedFiles,
-      sender: {
-        id: sender._id,
-        name: sender.name,
-        avatar: sender.avatar,
-      },
-      receiver: {
-        id: receiver._id,
-        name: receiver.name,
-        avatar: receiver.avatar,
-      },
-      conversation_id: req.body.conversation_id,
+      sender: sender._id,
+      receiver: receiver._id,
+      conversation_id: selectedConversation._id,
     });
 
     const data = await newMessage.save();
 
-    await Conversation.findByIdAndUpdate(req.body.conversation_id, {
-      lastMessage: {
-        id: data._id,
-        text: data.text,
-        time: data.createdAt,
-        sender: data.sender.id,
+    await Conversation.findByIdAndUpdate(
+      selectedConversation._id,
+      {
+        $inc: { [`unreadCounts.${receiver._id}`]: 1 },
+        $set: {
+          lastMessage: {
+            id: data._id,
+            text: data.text,
+            time: data.createdAt,
+            sender: data.sender,
+          },
+          isDeleted: [],
+        },
       },
-      isDeleted: [],
-    });
-    global.io.emit("new_message", { data, updatedCon });
+      { new: true }
+    );
+
+    // global.io.emit("new_message", { data});
 
     res.status(200).json({ Message: "delivered" });
   } catch (error) {

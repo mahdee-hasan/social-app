@@ -10,15 +10,17 @@ import highlightText from "@/utils/highlightText";
 import { Plus, UserIcon, X } from "lucide-react";
 import React, { useEffect, useState } from "react";
 import createNewConversation from "../services/createNewConversation";
+import { useUserStore } from "@/app/store";
 
 const CreateNewCon = () => {
   const [friends, setFriends] = useState([]); // original list
   const [filteredFriends, setFilteredFriends] = useState([]); // visible list
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState("");
-
+  const uid = useUserStore((s) => s.userUid);
   const gettingFriends = async () => {
-    const data = await getFriends();
+    const data = await getFriends(uid);
+    console.log(uid, data);
     if (data.success) {
       setFriends(data.friends);
       setFilteredFriends(data.friends); // initialize both

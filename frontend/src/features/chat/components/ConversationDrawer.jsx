@@ -31,7 +31,7 @@ const ConversationDrawer = () => {
     return opponent;
   };
   const opponent = getOpponents(conversation);
-  const [show, setShow] = useState(true);
+  const [show, setShow] = useState(false);
   return (
     <div
       className={`w-85 z-50 bg-white rounded-xl right-5 h-100 ring-2 fixed bottom-3 flex-col ${
@@ -68,7 +68,7 @@ const ConversationDrawer = () => {
             <div className="flex items-center gap-2">
               {opponent?.avatar ? (
                 <img
-                  src={opponent.avatar}
+                  src={opponent?.avatar}
                   alt="use"
                   className="w-8 h-8  bg-gray-400 text-gray-200 rounded-full"
                 />
@@ -76,7 +76,7 @@ const ConversationDrawer = () => {
                 <User className="w-8 h-8  bg-gray-400 text-gray-200 rounded-full" />
               )}
 
-              <p className="h-5 w-30">{opponent.name}</p>
+              <p className="h-5 w-30">{opponent?.name}</p>
             </div>
             <div className="flex items-center gap-3 text-gray-400">
               <Minimize className="cursor-pointer" />

@@ -74,23 +74,25 @@ const MessageBody = ({ opponent }) => {
     const body = new FormData();
     body.append("conId", conId);
     body.append("text", text);
+    body.append("receiver", opponent._id);
     files.forEach((file) => body.append("files", file));
-    setText("");
-    setFiles([]);
-    previews.forEach((p) => URL.revokeObjectURL(p.url));
-    setPreviews([]);
-    return;
+    // setText("");
+    // setFiles([]);
+    // previews.forEach((p) => URL.revokeObjectURL(p.url));
+    // setPreviews([]);
+    // return;
     try {
       const feedBack = await createNewMessage(body);
       if (!feedBack.success) {
         throw new Error(feedBack.error);
       }
+    } catch (error) {
+      console.error(error);
+    } finally {
       setText("");
       setFiles([]);
       previews.forEach((p) => URL.revokeObjectURL(p.url));
       setPreviews([]);
-    } catch (error) {
-      console.error(error);
     }
   };
   const gettingUser = async () => {
@@ -243,7 +245,7 @@ const MessageBody = ({ opponent }) => {
                 {m.sender._id === userId &&
                   (user?.avatar ? (
                     <img
-                      src={user.avatar}
+                      src={user?.avatar}
                       alt="user"
                       className="rounded-full ring h-6 w-6  drop-down"
                       style={{
@@ -319,7 +321,11 @@ const MessageBody = ({ opponent }) => {
             className="flex-1 rounded px-3 py-1 max-h-10/12 bg-white"
           />
 
-          <button type="submit" className="p-2">
+          <button
+            type="submit"
+            disabled={!text && !files.length}
+            className="p-2"
+          >
             <SendHorizonal />
           </button>
         </form>
