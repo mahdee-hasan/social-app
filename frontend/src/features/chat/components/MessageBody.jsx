@@ -5,8 +5,8 @@ import { FaUser } from "react-icons/fa";
 import { IoAttach } from "react-icons/io5";
 import createNewMessage from "../services/createNewMessage";
 import getUser from "@/services/getUser";
-import getMessage from "../services/getMessage";
 import formatDate from "@/utils/formatDate";
+import getMessage from "../services/getMessage";
 
 const MessageBody = ({ opponent }) => {
   const userId = useUserStore((s) => s.userObjectId);
