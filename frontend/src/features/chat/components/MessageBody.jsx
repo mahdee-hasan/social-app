@@ -186,8 +186,14 @@ const MessageBody = ({ opponent }) => {
                     } `}
                   >
                     <p className="text-[10px]">{formatDate(m?.createdAt)}</p>
-                    <Dot />
-                    <p className="text-[10px] ">{m.status || "sent"}</p>
+
+                    {m.sender._id === userId && (
+                      <>
+                        {" "}
+                        <Dot />
+                        <p className="text-[10px] ">{m.status || "sent"}</p>
+                      </>
+                    )}
                   </div>
                   {m.sender._id !== userId &&
                     (opponent.avatar ? (
