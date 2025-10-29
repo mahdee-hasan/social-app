@@ -2,7 +2,7 @@
 import { io } from "socket.io-client";
 
 const socket = io(import.meta.env.VITE_API_URL, {
-  autoConnect: false, // 🚫 Don't connect immediately
+  autoConnect: false,
   withCredentials: true,
 });
 
