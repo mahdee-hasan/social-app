@@ -14,10 +14,18 @@ export const setupSocket = (server, allowedOrigins) => {
   io.on("connection", async (socket) => {
     // Handle disconnect
     const { userOid } = socket.handshake.query;
-
-    await People.findByIdAndUpdate(userOid, { active: true });
-    socket.on("disconnect", async () => {
+    try {
       await People.findByIdAndUpdate(userOid, { active: true });
+    } catch (error) {
+      console.log(error.message);
+    }
+
+    socket.on("disconnect", async () => {
+      try {
+        await People.findByIdAndUpdate(userOid, { active: true });
+      } catch (error) {
+        console.log(error.message);
+      }
     });
   });
 };

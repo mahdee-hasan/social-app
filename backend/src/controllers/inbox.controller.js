@@ -241,6 +241,16 @@ const getMessage = async (req, res, next) => {
     await Conversation.findByIdAndUpdate(req.params.conId, {
       $set: { [`unreadCounts.${user._id}`]: 0 },
     });
+    await Message.updateMany(
+      {
+        conversation_id: req.params.conId,
+        sender: { $ne: user._id },
+        status: { $ne: "delivered" },
+      },
+      {
+        $set: { status: "delivered" },
+      }
+    );
 
     const messages = await Message.find({
       conversation_id: req.params.conId,
