@@ -59,7 +59,6 @@ const AuthForm = ({ title, buttonText, showName = false }) => {
           const authError = arrangeAuthError(feedback);
           setErrors(authError);
         } else {
-          console.log(feedback.uid);
           setUserUid(feedback.uid);
           navigate(`/user/${feedback.uid}`);
         }

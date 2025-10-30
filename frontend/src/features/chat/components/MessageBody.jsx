@@ -4,6 +4,7 @@ import React, { useEffect, useRef, useState } from "react";
 import { FaUser } from "react-icons/fa";
 import { IoAttach } from "react-icons/io5";
 import createNewMessage from "../services/createNewMessage";
+import userIcon from "/person.JPG";
 import getUser from "@/services/getUser";
 import formatDate from "@/utils/formatDate";
 import getMessage from "../services/getMessage";
@@ -179,10 +180,10 @@ const MessageBody = ({ opponent }) => {
               >
                 <>
                   <div
-                    className={`absolute font-mono w-full items-center  gap-1 flex -bottom-3.5 ${
+                    className={`absolute font-mono w-full items-center  gap-1 flex  ${
                       m.sender._id === userId
-                        ? "justify-end mr-8"
-                        : "ml-8 justify-start"
+                        ? "justify-end mr-8 -bottom-5"
+                        : "-bottom-3.5 ml-8 justify-start"
                     } `}
                   >
                     <p className="text-[10px]">{formatDate(m?.createdAt)}</p>
@@ -195,28 +196,18 @@ const MessageBody = ({ opponent }) => {
                       </>
                     )}
                   </div>
-                  {m.sender._id !== userId &&
-                    (opponent.avatar ? (
-                      <img
-                        src={opponent.avatar}
-                        alt="user"
-                        className="rounded-full ring h-6 w-6  drop-down"
-                        style={{
-                          animationDelay: `${
-                            (realMessage.length - 1 - i) * 0.1
-                          }s`,
-                        }}
-                      />
-                    ) : (
-                      <FaUser
-                        className="rounded-full ring text-2xl  drop-down"
-                        style={{
-                          animationDelay: `${
-                            (realMessage.length - 1 - i) * 0.1
-                          }s`,
-                        }}
-                      />
-                    ))}
+                  {m.sender._id !== userId && (
+                    <img
+                      src={opponent.avatar || userIcon}
+                      alt="user"
+                      className="rounded-full ring h-6 w-6  drop-down"
+                      style={{
+                        animationDelay: `${
+                          (realMessage.length - 1 - i) * 0.1
+                        }s`,
+                      }}
+                    />
+                  )}
                   <div
                     className="max-w-8/12 drop-down flex flex-col "
                     style={{
@@ -270,33 +261,23 @@ const MessageBody = ({ opponent }) => {
                       </div>
                     )}
                   </div>
-                  {m.sender._id === userId &&
-                    (user?.avatar ? (
-                      <img
-                        src={user?.avatar}
-                        alt="user"
-                        className="rounded-full ring h-6 w-6  drop-down"
-                        style={{
-                          animationDelay: `${
-                            (realMessage.length - 1 - i) * 0.1
-                          }s`,
-                        }}
-                      />
-                    ) : (
-                      <FaUser
-                        className="rounded-full ring  drop-down text-gray-400 text-2xl"
-                        style={{
-                          animationDelay: `${
-                            (realMessage.length - 1 - i) * 0.1
-                          }s`,
-                        }}
-                      />
-                    ))}
+                  {m.sender._id === userId && (
+                    <img
+                      src={user?.avatar || userIcon}
+                      alt="user"
+                      className="rounded-full ring h-6 w-6  drop-down"
+                      style={{
+                        animationDelay: `${
+                          (realMessage.length - 1 - i) * 0.1
+                        }s`,
+                      }}
+                    />
+                  )}
                   {i === 1 && (
                     <>
                       {" "}
                       <img
-                        src={opponent?.avatar}
+                        src={opponent?.avatar || userIcon}
                         alt="user"
                         className="w-3 h-3 ring rounded-full"
                       />

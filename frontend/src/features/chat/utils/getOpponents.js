@@ -1,7 +1,4 @@
-import { useUserStore } from "@/app/store";
-
-const userId = useUserStore.getState().userObjectId;
-const getOpponents = (value) => {
+const getOpponents = (value, userId) => {
   const opponent =
     value?.participants[0]._id === userId
       ? value?.participants[1]

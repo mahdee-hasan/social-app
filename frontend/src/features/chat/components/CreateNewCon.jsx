@@ -11,6 +11,7 @@ import { Plus, UserIcon, X } from "lucide-react";
 import React, { useEffect, useState } from "react";
 import createNewConversation from "../services/createNewConversation";
 import { useUserStore } from "@/app/store";
+import userIcon from "/person.JPG";
 
 const CreateNewCon = () => {
   const [friends, setFriends] = useState([]); // original list
@@ -89,15 +90,12 @@ const CreateNewCon = () => {
                 className="w-full rounded-lg cursor-pointer gap-3 px-5 h-15 flex items-center bg-gray-200"
                 key={f._id}
               >
-                {f.avatar ? (
-                  <img
-                    src={f.avatar}
-                    alt="user"
-                    className="w-10 h-10 rounded-full bg-gray-300"
-                  />
-                ) : (
-                  <UserIcon className="w-10 h-10 rounded-full bg-gray-300" />
-                )}
+                <img
+                  src={f.avatar || userIcon}
+                  alt="user"
+                  className="w-10 h-10 rounded-full bg-gray-300"
+                />
+
                 <p>{highlightText(f.name, searchQuery)}</p>
               </div>
             ))

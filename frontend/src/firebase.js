@@ -74,7 +74,7 @@ const signInManually = async (email, password, displayName) => {
     await updateProfile(user, {
       displayName: displayName,
     });
-    console.log("Account created:", user.email, "UID:", user.uid);
+
     useUserStore.setState({
       userUid: user.uid,
       idToken: user.accessToken,
@@ -93,7 +93,7 @@ const login = async (email, password) => {
       password
     );
     const user = userCredential.user;
-    console.log("Logged in:", user.email, "Name:", user.displayName);
+
     useUserStore.setState({
       userUid: user.uid,
       idToken: user.accessToken,

@@ -24,7 +24,7 @@ const ConversationDrawer = () => {
     gettingCon();
   }, [conId]);
 
-  const opponent = getOpponents(conversation);
+  const opponent = getOpponents(conversation, userId);
   const [show, setShow] = useState(false);
   return (
     <div

@@ -2,9 +2,10 @@ import React, { useEffect, useState } from "react";
 
 import getAllConversation from "../services/getAllConversation";
 import { useChatStore, useUserStore } from "@/app/store";
-import { Plus, UserIcon } from "lucide-react";
+
 import CreateNewCon from "./CreateNewCon";
 import getOpponents from "../utils/getOpponents";
+import userIcon from "/person.JPG";
 
 const InboxMenu = () => {
   const [conversations, setConversations] = useState();
@@ -20,7 +21,7 @@ const InboxMenu = () => {
         throw new Error(data.error);
       }
     } catch (error) {
-      console.log(error);
+      console.log(error.message);
     } finally {
       setLoading(false);
     }
@@ -77,19 +78,15 @@ const InboxMenu = () => {
               animationDelay: `${(arr.length - 1 - i) * 0.1}s`, // reverse delay
             }}
           >
-            {getOpponents(con).avatar ? (
-              <img
-                className="w-10 h-10 rounded-full bg-gray-500"
-                src={getOpponents(con).avatar}
-                alt="user"
-              />
-            ) : (
-              <UserIcon className="w-10 h-10 rounded-full bg-gray-500" />
-            )}
+            <img
+              className="w-10 h-10 rounded-full bg-gray-500"
+              src={getOpponents(con, userId).avatar || userIcon}
+              alt="user"
+            />
 
             <div className="space-y-1">
-              <p className="">{getOpponents(con).name}</p>
-              <p className="text-xs ">active now</p>
+              <p className="">{getOpponents(con, userId).name}</p>
+              <p className="text-xs ">{con.lastMessage.text}</p>
             </div>
           </div>
         ))}
