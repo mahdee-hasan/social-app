@@ -179,7 +179,7 @@ const MessageBody = ({ opponent }) => {
               >
                 <>
                   <div
-                    className={`absolute font-mono w-full items-center  gap-1 flex -bottom-5 ${
+                    className={`absolute font-mono w-full items-center  gap-1 flex -bottom-3.5 ${
                       m.sender._id === userId
                         ? "justify-end mr-8"
                         : "ml-8 justify-start"
