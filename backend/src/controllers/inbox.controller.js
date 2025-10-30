@@ -249,6 +249,7 @@ const getMessage = async (req, res, next) => {
       },
       {
         $set: { status: "delivered" },
+        $addToSet: { seen: user._id },
       }
     );
 

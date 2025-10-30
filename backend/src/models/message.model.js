@@ -31,6 +31,11 @@ const messageSchema = mongoose.Schema(
       type: String,
       default: "sent",
     },
+    seen: {
+      type: [mongoose.Schema.Types.ObjectId],
+      ref: "people",
+      default: [],
+    },
   },
   {
     timestamps: true,

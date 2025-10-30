@@ -292,6 +292,16 @@ const MessageBody = ({ opponent }) => {
                         }}
                       />
                     ))}
+                  {i === 1 && (
+                    <>
+                      {" "}
+                      <img
+                        src={opponent?.avatar}
+                        alt="user"
+                        className="w-3 h-3 ring rounded-full"
+                      />
+                    </>
+                  )}
                 </>
               </div>
             ))}
