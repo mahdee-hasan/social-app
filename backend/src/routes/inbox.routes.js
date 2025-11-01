@@ -6,6 +6,7 @@ import {
   sendMessage,
   getOneConversation,
   getMessage,
+  addConversation,
 } from "../controllers/inbox.controller.js";
 import checkAuth from "../middlewares/checkAuth.js";
 import { multipleUploader } from "../middlewares/UploadToCloudinary/composedUploader.js";
@@ -21,10 +22,11 @@ router.post(
   sendMessage
 );
 router.get("/message/:conId", checkAuth, getMessage);
+router.post("/conversation", checkAuth, addConversation);
 //not using
 // router.delete("/:id", checkAuth, deleteConversation);
 // router.post("/searchUser", checkAuth, searchUser);
-// router.post("/conversation", checkAuth, addConversation);
+//
 
 // router.get("/close-all-con", checkAuth, closeAllChat);
 // router.get("/open-chat/:id", checkAuth, openChat);

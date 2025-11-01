@@ -87,10 +87,10 @@ const searchUser = async (req, res, next) => {
   }
 };
 
-const addConversation = async (req, res) => {
+const addConversation = async (req, res, next) => {
   try {
     // current logged-in user
-    const user = await people.findOne({ uid: req.user.uid }, "_id");
+    const user = await People.findOne({ uid: req.user.uid }, "_id");
     if (!user) {
       return res.status(404).json({ Message: "User not found" });
     }
@@ -127,7 +127,7 @@ const addConversation = async (req, res) => {
       });
     }
   } catch (error) {
-    console.error("Error adding Conversation:", error.Message);
+    console.log("Error adding Conversation:", error.Message);
     return res.status(500).json({ error: error.Message });
   }
 };

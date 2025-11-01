@@ -12,6 +12,7 @@ const InboxMenu = () => {
   const [loading, setLoading] = useState(true);
   const userId = useUserStore((s) => s.userObjectId);
   const setConId = useChatStore((s) => s.setOpenedChat);
+  const conId = useChatStore((s) => s.openedChat);
   const getCon = async () => {
     try {
       const data = await getAllConversation(userId);
@@ -63,7 +64,7 @@ const InboxMenu = () => {
     <div className="h-full w-1/4 relative">
       <div className="flex flex-col gap-1 ">
         {" "}
-        <p className="h-18 bg-gray-200 w-11/12 flex justify-center text-2xl items-center">
+        <p className="h-18 ring rounded text-white bg-gray-700 w-11/12 flex justify-center text-2xl items-center">
           Inbox
         </p>
         {conversations?.map((con, i, arr) => (
@@ -71,8 +72,10 @@ const InboxMenu = () => {
             onClick={() => {
               setConId(con._id);
             }}
-            className="w-11/12 flex gap-1 drop-down rounded p-1
-             items-center cursor-pointer bg-gray-400 h-18"
+            className={`w-11/12 flex gap-1 drop-down rounded p-1
+             items-center cursor-pointer ${
+               con._id === conId ? "bg-gray-400" : "bg-gray-200"
+             } duration-100  h-18`}
             key={con._id}
             style={{
               animationDelay: `${(arr.length - 1 - i) * 0.1}s`, // reverse delay

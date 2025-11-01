@@ -23,10 +23,12 @@ const MessageBody = ({ opponent }) => {
   const fileInputRef = useRef(null);
 
   const gettingMessage = async () => {
+    setIsLoading(true);
     const data = await getMessage(conId);
     if (data.success) {
       setSeenMessage(data.seen);
       setUnseenMessage(data.unseen);
+      setIsLoading(false);
     }
   };
   const handleFileChange = (e) => {
@@ -178,7 +180,7 @@ const MessageBody = ({ opponent }) => {
             userId={userId}
             userIcon={userIcon}
           />
-          <div className="w-full flex justify-end">
+          <div className="w-full my-1 flex justify-end">
             {" "}
             <img
               src={opponent?.avatar || userIcon}

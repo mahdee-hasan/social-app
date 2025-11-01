@@ -8,16 +8,14 @@ const Messages = ({ messages, userId, userIcon }) => {
     messages.map((m, i) => (
       <div
         key={m._id}
-        className={`flex relative items-end-safe mb-5 gap-2 mx-1  ${
+        className={`flex relative items-end-safe mb-5 gap-2   ${
           m.sender._id !== userId ? "justify-start" : "justify-end"
         }`}
       >
         <>
           <div
-            className={`absolute font-mono w-full items-center  gap-1 flex  ${
-              m.sender._id === userId
-                ? "justify-end mr-8 -bottom-5"
-                : "-bottom-3.5 ml-8 justify-start"
+            className={`absolute font-mono w-full -bottom-3.5 items-center  gap-1 flex  ${
+              m.sender._id === userId ? "justify-end" : " ml-8 justify-start"
             } `}
           >
             <p className="text-[10px]">{formatDate(m?.createdAt)}</p>
@@ -91,16 +89,6 @@ const Messages = ({ messages, userId, userIcon }) => {
               </div>
             )}
           </div>
-          {m.sender._id === userId && (
-            <img
-              src={m.sender?.avatar || userIcon}
-              alt="user"
-              className="rounded-full ring h-6 w-6  drop-down"
-              style={{
-                animationDelay: `${(messages.length - 1 - i) * 0.1}s`,
-              }}
-            />
-          )}
         </>
       </div>
     ))
