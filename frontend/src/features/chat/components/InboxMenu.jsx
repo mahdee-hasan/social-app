@@ -82,14 +82,16 @@ const InboxMenu = () => {
             }}
           >
             <img
-              className="w-10 h-10 rounded-full bg-gray-500"
+              className="w-10 h-10 mr-3 rounded-full bg-gray-500"
               src={getOpponents(con, userId).avatar || userIcon}
               alt="user"
             />
 
             <div className="space-y-1">
-              <p className="">{getOpponents(con, userId).name}</p>
-              <p className="text-xs ">{con.lastMessage.text}</p>
+              <p className="font-bold text-gray-800">
+                {getOpponents(con, userId).name}
+              </p>
+              <p className="text-xs text-gray-700 ">{con.lastMessage.text}</p>
             </div>
           </div>
         ))}
