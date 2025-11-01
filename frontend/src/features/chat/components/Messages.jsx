@@ -14,8 +14,10 @@ const Messages = ({ messages, userId, userIcon }) => {
       >
         <>
           <div
-            className={`absolute font-mono w-full -bottom-3.5 items-center  gap-1 flex  ${
-              m.sender._id === userId ? "justify-end" : " ml-8 justify-start"
+            className={`absolute font-mono w-full items-center  gap-1 flex  ${
+              m.sender._id === userId
+                ? "justify-end -bottom-5"
+                : "-bottom-3.5 ml-8 justify-start"
             } `}
           >
             <p className="text-[10px]">{formatDate(m?.createdAt)}</p>

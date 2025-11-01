@@ -82,7 +82,7 @@ const InboxMenu = () => {
             }}
           >
             <img
-              className="w-10 h-10 mr-3 rounded-full bg-gray-500"
+              className="w-10 h-10 mx-3 rounded-full bg-gray-500"
               src={getOpponents(con, userId).avatar || userIcon}
               alt="user"
             />
