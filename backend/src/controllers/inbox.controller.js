@@ -237,10 +237,16 @@ const getMessage = async (req, res, next) => {
   try {
     const user = await People.findOne({ uid: req.user.uid }, "_id");
 
-    // Reset unread count for this user
-    await Conversation.findByIdAndUpdate(req.params.conId, {
-      $set: { [`unreadCounts.${user._id}`]: 0 },
-    });
+    const selectedConversation = await Conversation.findByIdAndUpdate(
+      req.params.conId,
+      { $set: { [`unreadCounts.${user._id}`]: 0 } },
+      { new: true }
+    );
+
+    const opponentId = selectedConversation.participants[0].equals(user._id)
+      ? selectedConversation.participants[1]
+      : selectedConversation.participants[0];
+
     await Message.updateMany(
       {
         conversation_id: req.params.conId,
@@ -253,15 +259,28 @@ const getMessage = async (req, res, next) => {
       }
     );
 
-    const messages = await Message.find({
+    const opponentSeenMessages = await Message.find({
       conversation_id: req.params.conId,
+      $or: [{ sender: opponentId }, { seen: opponentId }],
       deletedFor: { $nin: [user._id] },
     })
-      .populate("sender")
+      .populate("sender receiver")
       .sort({ createdAt: -1 })
       .limit(20);
 
-    res.status(200).json(messages);
+    const opponentUnseenMessages = await Message.find({
+      conversation_id: req.params.conId,
+      sender: { $ne: opponentId },
+      seen: { $ne: opponentId },
+      deletedFor: { $nin: [user._id] },
+    })
+      .populate("sender receiver")
+      .sort({ createdAt: -1 })
+      .limit(20);
+
+    res
+      .status(200)
+      .json({ seen: opponentSeenMessages, unseen: opponentUnseenMessages });
   } catch (error) {
     console.error(error);
     res.status(500).json({ error: error.message });
