@@ -14,7 +14,7 @@ const getUser = async () => {
     } else {
       error = err.message;
     }
-    throw new Error(error);
+    throw new Error(error.message);
   }
 };
 export default getUser;

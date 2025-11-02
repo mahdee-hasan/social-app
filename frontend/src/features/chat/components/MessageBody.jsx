@@ -100,7 +100,7 @@ const MessageBody = ({ opponent }) => {
         throw new Error(feedBack.error);
       }
     } catch (error) {
-      console.error(error);
+      console.error(error.message);
     } finally {
     }
   };
@@ -119,7 +119,7 @@ const MessageBody = ({ opponent }) => {
   }, [conId, userId]);
   useEffect(() => {
     socket.on("new_message", (data) => {
-      console.log("socket");
+      console.log(data);
     });
   }, []);
   if (isLoading || !opponent) {
