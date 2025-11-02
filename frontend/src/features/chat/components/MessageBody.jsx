@@ -116,6 +116,7 @@ const MessageBody = ({ opponent }) => {
     gettingUser();
     gettingMessage();
   }, [conId, userId]);
+
   if (isLoading || !opponent) {
     return (
       <>
