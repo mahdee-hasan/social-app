@@ -2,9 +2,6 @@ import escapeRegExp from "../utils/escapeRegexp.js";
 
 import Conversation from "../models/conversation.model.js";
 import Message from "../models/message.model.js";
-import fs from "fs";
-import path from "path";
-import cloudinary from "../config/cloudinaryConfig.js";
 import deleteUsersConversation from "../utils/deleteAttachment.js";
 import mongoose from "mongoose";
 import People from "../models/people.model.js";
@@ -23,70 +20,11 @@ const getInbox = async (req, res, next) => {
     } else {
       res.status(200).json({ conversations });
     }
-    // let activeIds = [];
-    // const activePeople = await people.find({ active: true }, "_id");
-    // activePeople.map((people) => activeIds.push(people.id.toString()));
   } catch (error) {
     console.log(error.Message);
     res.status(500).json({ error: error.Message });
   }
 };
-const getOneConversation = async (req, res, next) => {
-  try {
-    const selectedConversation = await Conversation.findById(
-      req.params.id
-    ).populate("participants");
-
-    if (!Conversation) {
-      res.status(404).json({ error: "Conversation not found" });
-    } else {
-      res.status(200).json({ conversation: selectedConversation });
-    }
-  } catch (error) {
-    console.log(error.message);
-    res.status(500).json({ error: error.Message });
-  }
-};
-const searchUser = async (req, res, next) => {
-  try {
-    const value = req.body.user.replace("+88", "");
-    const name_regexp = new RegExp(escapeRegExp(value), "i");
-    const mobile_regexp = new RegExp("^" + escapeRegExp("+88" + value));
-    const email_regexp = new RegExp("^" + escapeRegExp(value) + "$", "i");
-
-    let user = [];
-    if (req.query.from === "share") {
-      user = await people.find({
-        $or: [
-          { name: name_regexp },
-          { email: email_regexp },
-          { mobile: mobile_regexp },
-        ],
-        friends: { $in: [req.user.userId] },
-      });
-      res.status(200).json(user);
-    } else {
-      user = await people.find(
-        {
-          $or: [
-            { name: name_regexp },
-            { email: email_regexp },
-            { mobile: mobile_regexp },
-          ],
-        },
-        "name avatar role"
-      );
-      res.status(200).json(user);
-    }
-    if (!user.length) {
-      res.status(404).json({ error: "no one found" });
-    }
-  } catch (error) {
-    res.status(500).json({ error: error.Message });
-    console.log(error.Message);
-  }
-};
-
 const addConversation = async (req, res, next) => {
   try {
     // current logged-in user
@@ -129,6 +67,112 @@ const addConversation = async (req, res, next) => {
   } catch (error) {
     console.log("Error adding Conversation:", error.Message);
     return res.status(500).json({ error: error.Message });
+  }
+};
+const getOneConversation = async (req, res, next) => {
+  try {
+    const selectedConversation = await Conversation.findById(
+      req.params.id
+    ).populate("participants");
+
+    if (!Conversation) {
+      res.status(404).json({ error: "Conversation not found" });
+    } else {
+      res.status(200).json({ conversation: selectedConversation });
+    }
+  } catch (error) {
+    console.log(error.message);
+    res.status(500).json({ error: error.Message });
+  }
+};
+const searchUser = async (req, res, next) => {
+  try {
+    const value = req.body.user.replace("+88", "");
+    const name_regexp = new RegExp(escapeRegExp(value), "i");
+    const mobile_regexp = new RegExp("^" + escapeRegExp("+88" + value));
+    const email_regexp = new RegExp("^" + escapeRegExp(value) + "$", "i");
+
+    let user = [];
+    if (req.query.from === "share") {
+      user = await People.find({
+        $or: [
+          { name: name_regexp },
+          { email: email_regexp },
+          { mobile: mobile_regexp },
+        ],
+        friends: { $in: [req.user.userId] },
+      });
+      res.status(200).json(user);
+    } else {
+      user = await People.find(
+        {
+          $or: [
+            { name: name_regexp },
+            { email: email_regexp },
+            { mobile: mobile_regexp },
+          ],
+        },
+        "name avatar role"
+      );
+      res.status(200).json(user);
+    }
+    if (!user.length) {
+      res.status(404).json({ error: "no one found" });
+    }
+  } catch (error) {
+    res.status(500).json({ error: error.Message });
+    console.log(error.Message);
+  }
+};
+
+const sendMessage = async (req, res, next) => {
+  if (!req.body.text && !req.uploadArray) {
+    res.status(400).json({ Message: "Message cant be null" });
+  }
+  try {
+    const selectedConversation = await Conversation.findById(req.body.conId);
+
+    if (!selectedConversation) {
+      return res.status(404).json({ Message: "Conversation not found" });
+    }
+
+    const sender = await People.findOne({ uid: req.user.uid }, "name avatar");
+
+    const receiver = await People.findById(req.body.receiver, "name avatar");
+
+    const newMessage = new Message({
+      text: req.body.text,
+      attachment: req.uploadArray,
+      sender: sender._id,
+      receiver: receiver._id,
+      conversation_id: selectedConversation._id,
+    });
+
+    const data = await newMessage.save();
+
+    await Conversation.findByIdAndUpdate(
+      selectedConversation._id,
+      {
+        $inc: { [`unreadCounts.${receiver._id}`]: 1 },
+        $set: {
+          lastMessage: {
+            id: data._id,
+            text: data.text,
+            time: data.createdAt,
+            sender: data.sender,
+          },
+          isDeleted: [],
+        },
+      },
+      { new: true }
+    );
+
+    global.io.emit("new_message", { data });
+
+    res.status(200).json({ Message: "delivered" });
+  } catch (error) {
+    console.log(error.Message);
+    res.status(500).json({ Message: "not sent" });
   }
 };
 
@@ -179,57 +223,6 @@ const deleteConversation = async (req, res, next) => {
   } catch (error) {
     res.status(500).json({ Message: "error occurred" + error.Message });
     console.log("catch", error.Message);
-  }
-};
-
-const sendMessage = async (req, res, next) => {
-  if (!req.body.text && !req.uploadArray) {
-    res.status(400).json({ Message: "Message cant be null" });
-  }
-  try {
-    const selectedConversation = await Conversation.findById(req.body.conId);
-
-    if (!selectedConversation) {
-      return res.status(404).json({ Message: "Conversation not found" });
-    }
-
-    const sender = await People.findOne({ uid: req.user.uid }, "name avatar");
-
-    const receiver = await People.findById(req.body.receiver, "name avatar");
-
-    const newMessage = new Message({
-      text: req.body.text,
-      attachment: req.uploadArray,
-      sender: sender._id,
-      receiver: receiver._id,
-      conversation_id: selectedConversation._id,
-    });
-
-    const data = await newMessage.save();
-
-    await Conversation.findByIdAndUpdate(
-      selectedConversation._id,
-      {
-        $inc: { [`unreadCounts.${receiver._id}`]: 1 },
-        $set: {
-          lastMessage: {
-            id: data._id,
-            text: data.text,
-            time: data.createdAt,
-            sender: data.sender,
-          },
-          isDeleted: [],
-        },
-      },
-      { new: true }
-    );
-
-    // global.io.emit("new_message", { data});
-
-    res.status(200).json({ Message: "delivered" });
-  } catch (error) {
-    console.log(error.Message);
-    res.status(500).json({ Message: "not sent" });
   }
 };
 

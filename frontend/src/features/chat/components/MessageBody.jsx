@@ -8,6 +8,7 @@ import userIcon from "/person.JPG";
 import getUser from "@/services/getUser";
 import getMessage from "../services/getMessage";
 import Messages from "./Messages";
+import socket from "@/app/socket";
 
 const MessageBody = ({ opponent }) => {
   const userId = useUserStore((s) => s.userObjectId);
@@ -116,7 +117,11 @@ const MessageBody = ({ opponent }) => {
     gettingUser();
     gettingMessage();
   }, [conId, userId]);
-
+  useEffect(() => {
+    socket.on("new_message", (data) => {
+      console.log("socket");
+    });
+  }, []);
   if (isLoading || !opponent) {
     return (
       <>
