@@ -118,7 +118,7 @@ const MessageBody = ({ opponent }) => {
     gettingMessage();
   }, [conId, userId]);
   useEffect(() => {
-    socket.on("new_message", (data) => {
+    socket.on("new_message", ({ data }) => {
       console.log(data);
     });
   }, []);

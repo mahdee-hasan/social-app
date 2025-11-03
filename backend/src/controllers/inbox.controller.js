@@ -167,7 +167,7 @@ const sendMessage = async (req, res, next) => {
       { new: true }
     );
 
-    global.io.emit("new_message", { data });
+    global.io.to(receiver._id.toString()).emit("new_message", { data });
 
     res.status(200).json({ Message: "delivered" });
   } catch (error) {

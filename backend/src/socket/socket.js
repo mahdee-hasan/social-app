@@ -15,6 +15,7 @@ export const setupSocket = (server, allowedOrigins) => {
     // Handle disconnect
     const { userOid } = socket.handshake.query;
     socket.userOid = userOid;
+    socket.join(userOid);
     try {
       await People.findByIdAndUpdate(userOid, { active: true });
     } catch (error) {
@@ -24,6 +25,7 @@ export const setupSocket = (server, allowedOrigins) => {
     socket.on("disconnect", async () => {
       try {
         await People.findByIdAndUpdate(socket.userOid, { active: false });
+        socket.leave(socket.userOid);
       } catch (error) {
         console.log(error.message);
       }

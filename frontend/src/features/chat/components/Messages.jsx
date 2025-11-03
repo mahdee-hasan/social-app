@@ -22,15 +22,13 @@ const Messages = ({ messages, userId, userIcon }) => {
           >
             <p className="text-[10px]">{formatDate(m?.createdAt)}</p>
 
-            {m.sender._id === userId &&
-              m.status !== "delivered" &&
-              i === messages.length - 1 && (
-                <>
-                  {" "}
-                  <Dot />
-                  <p className="text-[10px] ">{m.status || "sent"}</p>
-                </>
-              )}
+            {m.sender._id === userId && m.status !== "delivered" && i === 0 && (
+              <>
+                {" "}
+                <Dot />
+                <p className="text-[10px] ">{m.status || "sent"}</p>
+              </>
+            )}
           </div>
           {m.sender._id !== userId && (
             <img
