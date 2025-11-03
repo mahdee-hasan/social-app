@@ -70,25 +70,33 @@ const MessageBody = ({ opponent }) => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+
     if (!text.trim() && !files.length)
       return alert("Write something or attach files");
+
+    const tempId = unseenMessage.length + 1;
 
     const messageObject = {
       text,
       attachment: previews,
-      _id: unseenMessage.length + 1,
-      sender: { _id: userId, name: "client" },
+      _id: tempId,
+      sender: { _id: userId },
       createdAt: Date.now(),
       status: "sending",
       seen: [],
     };
+
+    // add the temporary message
     setUnseenMessage((prev) => [messageObject, ...prev]);
 
+    // prepare form data
     const body = new FormData();
     body.append("conId", conId);
     body.append("text", text);
     body.append("receiver", opponent._id);
     files.forEach((file) => body.append("files", file));
+
+    // reset input fields
     setText("");
     setFiles([]);
     previews.forEach((p) => URL.revokeObjectURL(p.url));
@@ -96,14 +104,27 @@ const MessageBody = ({ opponent }) => {
 
     try {
       const feedBack = await createNewMessage(body);
-      if (!feedBack.success) {
+
+      if (feedBack.success) {
+        setUnseenMessage((prev) =>
+          prev.map((msg) =>
+            msg._id === tempId ? { ...msg, status: "sent" } : msg
+          )
+        );
+      } else {
         throw new Error(feedBack.error);
       }
     } catch (error) {
       console.error(error.message);
-    } finally {
+
+      setUnseenMessage((prev) =>
+        prev.map((msg) =>
+          msg._id === tempId ? { ...msg, status: "not_sent" } : msg
+        )
+      );
     }
   };
+
   const gettingUser = async () => {
     const data = await getUser();
     if (!data.error) {
@@ -125,25 +146,6 @@ const MessageBody = ({ opponent }) => {
       socket.off("new_message", () => {});
     };
   }, []);
-  useEffect(() => {
-    const handleMessageSent = (data) => {
-      setUnseenMessage((prev) => {
-        // Check if message already exists (based on your logic)
-        const updated = prev.filter(
-          (m) => !(m.text === data.text && m.status === "sending")
-        );
-        // Add new message at the beginning
-        return [data, ...updated];
-      });
-    };
-
-    socket.on("message_sent", handleMessageSent);
-
-    // ✅ Proper cleanup
-    return () => {
-      socket.off("message_sent", handleMessageSent);
-    };
-  }, []);
 
   if (isLoading || !opponent) {
     return (
@@ -156,10 +158,7 @@ const MessageBody = ({ opponent }) => {
             }`}
           >
             {i % 2 === 0 && <FaUser className="rounded-full ring text-2xl" />}
-            <div
-              className="w-8/12 h-8 mb-2 rounded-tl-lg drop-down rounded-br-lg bg-gray-600"
-              style={{ animationDelay: `${(arr.length - 1 - i) * 0.1}s` }}
-            />
+            <div className="w-8/12 h-8 mb-2 rounded-tl-lg rounded-br-lg bg-gray-600" />
             {i % 2 !== 0 && (
               <FaUser className="rounded-full ring text-gray-400 text-2xl" />
             )}

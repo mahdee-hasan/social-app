@@ -170,7 +170,7 @@ const sendMessage = async (req, res, next) => {
     global.io.to(sender._id.toString()).emit("message_sent", data);
     global.io.to(receiver._id.toString()).emit("new_message", data);
 
-    res.status(200).json({ Message: "delivered" });
+    res.status(201).json({ Message: "delivered" });
   } catch (error) {
     console.log(error.Message);
     res.status(500).json({ Message: "not sent" });
