@@ -8,7 +8,7 @@ const Messages = ({ messages, userId, userIcon }) => {
     messages.map((m, i) => (
       <div
         key={m._id}
-        className={`flex relative items-end-safe mb-5 gap-2   ${
+        className={`flex relative items-end-safe mb-5 gap-2  drop-down ${
           m.sender._id !== userId ? "justify-start" : "justify-end"
         }`}
       >
@@ -34,18 +34,10 @@ const Messages = ({ messages, userId, userIcon }) => {
             <img
               src={m.sender.avatar || userIcon}
               alt="user"
-              className="rounded-full ring h-6 w-6  drop-down"
-              style={{
-                animationDelay: `${(messages.length - 1 - i) * 0.1}s`,
-              }}
+              className="rounded-full ring h-6 w-6"
             />
           )}
-          <div
-            className="max-w-8/12 drop-down flex flex-col "
-            style={{
-              animationDelay: `${(messages.length - 1 - i) * 0.1}s`,
-            }}
-          >
+          <div className="max-w-8/12 flex flex-col ">
             {m.text?.length > 0 && (
               <div
                 className={`max-w-full min-h-8 p-1  border-black border-[0.5px] rounded-lg ${

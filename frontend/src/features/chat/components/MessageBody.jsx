@@ -118,10 +118,33 @@ const MessageBody = ({ opponent }) => {
     gettingMessage();
   }, [conId, userId]);
   useEffect(() => {
-    socket.on("new_message", ({ data }) => {
-      console.log(data);
+    socket.on("new_message", (data) => {
+      setSeenMessage((prev) => [data, ...prev]);
     });
+    return () => {
+      socket.off("new_message", () => {});
+    };
   }, []);
+  useEffect(() => {
+    const handleMessageSent = (data) => {
+      setUnseenMessage((prev) => {
+        // Check if message already exists (based on your logic)
+        const updated = prev.filter(
+          (m) => !(m.text === data.text && m.status === "sending")
+        );
+        // Add new message at the beginning
+        return [data, ...updated];
+      });
+    };
+
+    socket.on("message_sent", handleMessageSent);
+
+    // ✅ Proper cleanup
+    return () => {
+      socket.off("message_sent", handleMessageSent);
+    };
+  }, []);
+
   if (isLoading || !opponent) {
     return (
       <>

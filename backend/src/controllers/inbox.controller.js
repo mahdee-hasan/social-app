@@ -148,7 +148,8 @@ const sendMessage = async (req, res, next) => {
       conversation_id: selectedConversation._id,
     });
 
-    const data = await newMessage.save();
+    const savedMessage = await newMessage.save();
+    const data = await savedMessage.populate("sender");
 
     await Conversation.findByIdAndUpdate(
       selectedConversation._id,
@@ -166,8 +167,8 @@ const sendMessage = async (req, res, next) => {
       },
       { new: true }
     );
-
-    global.io.to(receiver._id.toString()).emit("new_message", { data });
+    global.io.to(sender._id.toString()).emit("message_sent", data);
+    global.io.to(receiver._id.toString()).emit("new_message", data);
 
     res.status(200).json({ Message: "delivered" });
   } catch (error) {
