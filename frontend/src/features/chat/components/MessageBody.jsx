@@ -1,8 +1,11 @@
+//internal/npm packages imports
 import { useChatStore, useUserStore } from "@/app/store";
 import { SendHorizonal } from "lucide-react";
 import React, { useEffect, useRef, useState } from "react";
 import { FaUser } from "react-icons/fa";
 import { IoAttach } from "react-icons/io5";
+
+//external imports
 import createNewMessage from "../services/createNewMessage";
 import userIcon from "/person.JPG";
 import getUser from "@/services/getUser";
@@ -11,34 +14,43 @@ import Messages from "./Messages";
 import socket from "@/app/socket";
 
 const MessageBody = ({ opponent }) => {
+  //zustand store
   const userId = useUserStore((s) => s.userObjectId);
+  const conId = useChatStore((s) => s.openedChat);
+  //useState
   const [user, setUser] = useState({});
+  const [text, setText] = useState("");
   const [seenMessage, setSeenMessage] = useState([]);
   const [unseenMessage, setUnseenMessage] = useState([]);
   const [files, setFiles] = useState([]);
   const [previews, setPreviews] = useState([]);
-  const conId = useChatStore((s) => s.openedChat);
   const [isLoading, setIsLoading] = useState(false);
+  //ref
   const bottomRef = useRef(null);
-  const [text, setText] = useState("");
   const fileInputRef = useRef(null);
 
   const gettingMessage = async () => {
+    //set the loading true
     setIsLoading(true);
+    //call the service
     const data = await getMessage(conId);
+    //if only success set the data as you need
     if (data.success) {
       setSeenMessage(data.seen);
       setUnseenMessage(data.unseen);
-      setIsLoading(false);
     }
+    //set the loading false after getting
+    setIsLoading(false);
   };
   const handleFileChange = (e) => {
+    //store the array of files
     const selected = Array.from(e.target.files || []);
+    //return if there is no files
     if (!selected.length) return;
-
+    //set a boundary for uploading
     const combined = [...files, ...selected];
     if (combined.length > 5) return alert("You can upload up to 5 files only.");
-
+    //make the new file as first five
     const newFiles = combined.slice(0, 5);
 
     // create preview URLs
@@ -54,6 +66,7 @@ const MessageBody = ({ opponent }) => {
     e.target.value = ""; // allow same file reselect
   };
 
+  //function for removing the previews
   const removePreview = (index) => {
     // revoke the object URL to free memory
     URL.revokeObjectURL(previews[index].secure_url);
@@ -67,13 +80,13 @@ const MessageBody = ({ opponent }) => {
     setFiles(newFiles);
     setPreviews(newPreviews);
   };
-
+  //handle the files and text and submit
   const handleSubmit = async (e) => {
     e.preventDefault();
-
+    //if no text or no files then return
     if (!text.trim() && !files.length)
       return alert("Write something or attach files");
-
+    //make a preview for instant displaying
     const tempId = unseenMessage.length + 1;
 
     const messageObject = {
@@ -124,20 +137,25 @@ const MessageBody = ({ opponent }) => {
       );
     }
   };
-
+  //getting the user
   const gettingUser = async () => {
     const data = await getUser();
     if (!data.error) {
       setUser(data.user);
     }
   };
+
+  // for scroll on new message
   useEffect(() => {
     bottomRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [unseenMessage]);
+  // for getting the data
   useEffect(() => {
     gettingUser();
     gettingMessage();
   }, [conId, userId]);
+
+  //for getting new message / socket
   useEffect(() => {
     socket.on("new_message", (data) => {
       setSeenMessage((prev) => [data, ...prev]);
