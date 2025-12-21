@@ -57,6 +57,7 @@ const signInWithFacebook = async () => {
       userUid: user.uid,
       idToken: user.accessToken,
     });
+    console.log(user);
     return user;
   } catch (error) {
     throw error;

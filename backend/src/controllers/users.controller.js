@@ -7,6 +7,7 @@ import Conversation from "../models/conversation.model.js";
 import cloudinary from "../config/cloudinaryConfig.js";
 import deleteUsersConversation from "../utils/deleteAttachment.js";
 import admin from "../config/firebase.js";
+import uploadGoogleAvatarToCloudinary from "../utils/avatarUploader.js";
 //get users
 const getUsers = async (req, res, next) => {
   if (req.user.role) {
@@ -19,37 +20,37 @@ const getUsers = async (req, res, next) => {
     res.status(403).json({ message: "something went wrong" });
   }
 };
-const addUser = async (req, res, next) => {
-  let newUser;
-  const hashedPassword = await bcrypt.hash(req.body.password, 10);
-  if (req.files && req.files.length > 0) {
-    newUser = new people({
-      ...req.body,
-      avatar: req.avatarName,
-      public_id: req.public_id,
-      password: hashedPassword,
-    });
-  } else {
-    newUser = new people({
-      ...req.body,
-      password: hashedPassword,
-    });
-  }
+// const addUser = async (req, res, next) => {
+//   let newUser;
+//   const hashedPassword = await bcrypt.hash(req.body.password, 10);
+//   if (req.files && req.files.length > 0) {
+//     newUser = new people({
+//       ...req.body,
+//       avatar: req.avatarName,
+//       public_id: req.public_id,
+//       password: hashedPassword,
+//     });
+//   } else {
+//     newUser = new people({
+//       ...req.body,
+//       password: hashedPassword,
+//     });
+//   }
 
-  //save the user
-  try {
-    const result = await newUser.save();
-    res.status(200).json({ message: "user was added successfully" });
-  } catch (err) {
-    res.status(500).json({
-      errors: {
-        common: {
-          msg: "unknown error occurred",
-        },
-      },
-    });
-  }
-};
+//   //save the user
+//   try {
+//     const result = await newUser.save();
+//     res.status(200).json({ message: "user was added successfully" });
+//   } catch (err) {
+//     res.status(500).json({
+//       errors: {
+//         common: {
+//           msg: "unknown error occurred",
+//         },
+//       },
+//     });
+//   }
+// };
 const addFireBaseUser = async (req, res, next) => {
   try {
     const { uid, displayName, email, photoURL } = req.body;
@@ -57,11 +58,12 @@ const addFireBaseUser = async (req, res, next) => {
     if (match) {
       res.status(200).json({ signedIn: true });
     } else {
+      const avatarUrl = await uploadGoogleAvatarToCloudinary(photoURL, uid);
       const newUser = new people({
         uid,
         email,
         name: displayName,
-        avatar: photoURL || null,
+        avatar: avatarUrl || null,
       });
       const user = await newUser.save();
       res.status(201).json(user);
@@ -165,4 +167,4 @@ const deleteUser = async (req, res, next) => {
 //     return { success: false, message: error.message };
 //   }
 // };
-export { getUsers, addUser, deleteUser, addFireBaseUser };
+export { getUsers, deleteUser, addFireBaseUser };

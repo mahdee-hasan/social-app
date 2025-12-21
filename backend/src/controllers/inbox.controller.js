@@ -149,28 +149,34 @@ const sendMessage = async (req, res, next) => {
     });
 
     const savedMessage = await newMessage.save();
-    const data = await savedMessage.populate("sender");
+    const data = await savedMessage.populate("sender receiver");
 
-    await Conversation.findByIdAndUpdate(
-      selectedConversation._id,
-      {
-        $inc: { [`unreadCounts.${receiver._id}`]: 1 },
-        $set: {
-          lastMessage: {
-            id: data._id,
-            text: data.text,
-            time: data.createdAt,
-            sender: data.sender,
-          },
-          isDeleted: [],
+    await Conversation.findByIdAndUpdate(selectedConversation._id, {
+      $set: {
+        lastMessage: {
+          id: data._id,
+          text: data.text,
+          time: data.createdAt,
+          sender: data.sender,
         },
+        isDeleted: [],
       },
-      { new: true }
-    );
-    global.io.to(sender._id.toString()).emit("message_sent", data);
-    global.io.to(receiver._id.toString()).emit("new_message", data);
-
-    res.status(201).json({ Message: "delivered" });
+    });
+    const receiverPresence = `presence:${selectedConversation._id}:${req.body.receiver}`;
+    const existence = await global.io.in(receiverPresence).fetchSockets();
+    if (existence.length) {
+      global.io.to(receiverPresence).emit("new_message", data);
+      //unread not increase
+    } else {
+      //unread increases by 1
+      await Conversation.findByIdAndUpdate(selectedConversation._id, {
+        $inc: { [`unreadCounts.${receiver._id}`]: 1 },
+      });
+      global.io
+        .to(sender._id.toString())
+        .emit("unreadIncrease", { conId: selectedConversation._id });
+    }
+    res.status(201).json({ message: data });
   } catch (error) {
     console.log(error.Message);
     res.status(500).json({ Message: "not sent" });
@@ -236,11 +242,6 @@ const getMessage = async (req, res, next) => {
       { $set: { [`unreadCounts.${user._id}`]: 0 } },
       { new: true }
     );
-
-    const opponentId = selectedConversation.participants[0].equals(user._id)
-      ? selectedConversation.participants[1]
-      : selectedConversation.participants[0];
-
     await Message.updateMany(
       {
         conversation_id: req.params.conId,
@@ -253,28 +254,14 @@ const getMessage = async (req, res, next) => {
       }
     );
 
-    const opponentSeenMessages = await Message.find({
+    const messages = await Message.find({
       conversation_id: req.params.conId,
-      $or: [{ sender: opponentId }, { seen: opponentId }],
       deletedFor: { $nin: [user._id] },
     })
       .populate("sender receiver")
       .sort({ createdAt: -1 })
       .limit(20);
-
-    const opponentUnseenMessages = await Message.find({
-      conversation_id: req.params.conId,
-      sender: { $ne: opponentId },
-      seen: { $ne: opponentId },
-      deletedFor: { $nin: [user._id] },
-    })
-      .populate("sender receiver")
-      .sort({ createdAt: -1 })
-      .limit(20);
-
-    res
-      .status(200)
-      .json({ seen: opponentSeenMessages, unseen: opponentUnseenMessages });
+    res.status(200).json({ messages });
   } catch (error) {
     console.error(error);
     res.status(500).json({ error: error.message });
@@ -384,21 +371,7 @@ const updateMessage = async (req, res, next) => {
     res.status(500).json({ success: false, Message: "Error updating Message" });
   }
 };
-const openChat = async (req, res, next) => {
-  try {
-    const con = await Conversation.findByIdAndUpdate(
-      req.params.id,
-      {
-        $addToSet: { isOpen: req.user.username },
-      },
-      { new: true }
-    );
 
-    res.status(200).json(con);
-  } catch (err) {
-    res.status(500).json({ Message: "Something went wrong", error: err });
-  }
-};
 const closeChat = async (req, res, next) => {
   try {
     const con = await Conversation.findByIdAndUpdate(
@@ -468,7 +441,6 @@ export {
   deleteForEveryone,
   deleteForME,
   updateMessage,
-  openChat,
   closeChat,
   closeAllChat,
   startTyping,

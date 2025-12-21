@@ -1,8 +1,6 @@
-import { SendHorizonal, UserIcon } from "lucide-react";
 import React, { useEffect, useState } from "react";
 import { BsThreeDotsVertical } from "react-icons/bs";
-import { FaUser } from "react-icons/fa";
-import { IoAttach, IoCall, IoVideocam } from "react-icons/io5";
+import { IoCall, IoVideocam } from "react-icons/io5";
 import MessageBody from "./MessageBody";
 import getOneConversation from "../services/getOneConversation";
 import { useChatStore, useUserStore } from "@/app/store";
@@ -14,7 +12,7 @@ const ConversationBox = () => {
   const userId = useUserStore((s) => s.userObjectId);
   const [isLoading, setIsLoading] = useState(true);
   const [conversation, setConversation] = useState(null);
-
+  // get opened conversations data
   const gettingCon = async () => {
     setIsLoading(true);
     const data = await getOneConversation(conId);
@@ -23,11 +21,12 @@ const ConversationBox = () => {
     }
     setIsLoading(false);
   };
-
+  //call the function in every conversation id change or in mount
   useEffect(() => {
     gettingCon();
   }, [conId]);
 
+  //return the skeleton if not loaded
   if (isLoading) {
     return (
       <div className="w-3/4 rounded-xl flex flex-col ring h-full">
@@ -54,10 +53,11 @@ const ConversationBox = () => {
       </div>
     );
   }
-
+  //if there is an opened conversation return the message of it
   return conversation ? (
     <div className="w-3/4 rounded-xl flex flex-col ring h-full">
       <div className="bg-gray-200 rounded-t-xl flex items-center-safe h-[10vh] w-full">
+        {/* header  */}
         <div className="flex  justify-between w-full items-center px-10  gap-2">
           <div className="flex items-center gap-1">
             <img
@@ -85,7 +85,12 @@ const ConversationBox = () => {
         </div>
       </div>
       <div className="flex flex-col  h-[75vh] justify-end">
-        <MessageBody opponent={getOpponents(conversation, userId)} />
+        {conversation && conversation._id && (
+          <MessageBody
+            opponent={getOpponents(conversation, userId)}
+            conversation={conversation}
+          />
+        )}
       </div>
     </div>
   ) : (

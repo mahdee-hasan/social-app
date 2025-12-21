@@ -29,6 +29,8 @@ const useChatStore = create(
       setOpenedChat: (payload) => set({ openedChat: payload }),
       miniChat: "",
       setMiniChat: (payload) => set({ miniChat: payload }),
+      currentConRoom: "",
+      setCurrentConRoom: (payload) => set({ currentConRoom: payload }),
     }),
     {
       name: "chat-store", // key name in storage

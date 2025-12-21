@@ -12,19 +12,21 @@ import getUser from "@/services/getUser";
 import getMessage from "../services/getMessage";
 import Messages from "./Messages";
 import socket from "@/app/socket";
+import joiningConRoom from "../services/joiningConRoom";
 
-const MessageBody = ({ opponent }) => {
+const MessageBody = ({ opponent, conversation }) => {
   //zustand store
   const userId = useUserStore((s) => s.userObjectId);
   const conId = useChatStore((s) => s.openedChat);
   //useState
+
   const [user, setUser] = useState({});
   const [text, setText] = useState("");
-  const [seenMessage, setSeenMessage] = useState([]);
-  const [unseenMessage, setUnseenMessage] = useState([]);
+  const [message, setMessage] = useState([]);
   const [files, setFiles] = useState([]);
   const [previews, setPreviews] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
+
   //ref
   const bottomRef = useRef(null);
   const fileInputRef = useRef(null);
@@ -36,12 +38,18 @@ const MessageBody = ({ opponent }) => {
     const data = await getMessage(conId);
     //if only success set the data as you need
     if (data.success) {
-      setSeenMessage(data.seen);
-      setUnseenMessage(data.unseen);
+      setMessage(data.message);
     }
     //set the loading false after getting
     setIsLoading(false);
   };
+  const gettingUser = async () => {
+    const data = await getUser();
+    if (!data.error) {
+      setUser(data.user);
+    }
+  };
+
   const handleFileChange = (e) => {
     //store the array of files
     const selected = Array.from(e.target.files || []);
@@ -87,7 +95,7 @@ const MessageBody = ({ opponent }) => {
     if (!text.trim() && !files.length)
       return alert("Write something or attach files");
     //make a preview for instant displaying
-    const tempId = unseenMessage.length + 1;
+    const tempId = message.length + 1;
 
     const messageObject = {
       text,
@@ -100,7 +108,7 @@ const MessageBody = ({ opponent }) => {
     };
 
     // add the temporary message
-    setUnseenMessage((prev) => [messageObject, ...prev]);
+    setMessage((prev) => [messageObject, ...prev]);
 
     // prepare form data
     const body = new FormData();
@@ -119,10 +127,8 @@ const MessageBody = ({ opponent }) => {
       const feedBack = await createNewMessage(body);
 
       if (feedBack.success) {
-        setUnseenMessage((prev) =>
-          prev.map((msg) =>
-            msg._id === tempId ? { ...msg, status: "sent" } : msg
-          )
+        setMessage((prev) =>
+          prev.map((msg) => (msg._id === tempId ? feedBack.newMessage : msg))
         );
       } else {
         throw new Error(feedBack.error);
@@ -130,27 +136,21 @@ const MessageBody = ({ opponent }) => {
     } catch (error) {
       console.error(error.message);
 
-      setUnseenMessage((prev) =>
+      setMessage((prev) =>
         prev.map((msg) =>
           msg._id === tempId ? { ...msg, status: "not_sent" } : msg
         )
       );
     }
   };
-  //getting the user
-  const gettingUser = async () => {
-    const data = await getUser();
-    if (!data.error) {
-      setUser(data.user);
-    }
-  };
 
   // for scroll on new message
   useEffect(() => {
     bottomRef.current?.scrollIntoView({ behavior: "smooth" });
-  }, [unseenMessage]);
+  }, [message]);
   // for getting the data
   useEffect(() => {
+    joiningConRoom(conId);
     gettingUser();
     gettingMessage();
   }, [conId, userId]);
@@ -158,12 +158,17 @@ const MessageBody = ({ opponent }) => {
   //for getting new message / socket
   useEffect(() => {
     socket.on("new_message", (data) => {
-      setSeenMessage((prev) => [data, ...prev]);
+      setMessage((prev) => [data, ...prev]);
     });
+    socket.emit("all_seen", conId);
     return () => {
       socket.off("new_message", () => {});
     };
   }, []);
+
+  const handleTyping = () => {
+    socket.emit("typing", { roomId: conId, avatar: user.avatar });
+  };
 
   if (isLoading || !opponent) {
     return (
@@ -222,23 +227,11 @@ const MessageBody = ({ opponent }) => {
         <div className=" flex max-h-full flex-col-reverse  overflow-y-scroll scrollbar-hide p-2">
           <div ref={bottomRef} />
           <Messages
-            messages={unseenMessage}
+            messages={message}
             userId={userId}
             userIcon={userIcon}
-          />
-          <div className="w-full my-1 flex justify-end">
-            {" "}
-            <img
-              src={opponent?.avatar || userIcon}
-              alt="user"
-              className="w-3 h-3 ring rounded-full"
-            />
-          </div>
-
-          <Messages
-            messages={seenMessage}
-            userId={userId}
-            userIcon={userIcon}
+            unreadCounts={conversation?.unreadCounts?.[opponent?._id]}
+            opponent={opponent}
           />
         </div>
       </div>
@@ -293,7 +286,10 @@ const MessageBody = ({ opponent }) => {
           <input
             type="text"
             value={text}
-            onChange={(e) => setText(e.target.value)}
+            onChange={(e) => {
+              setText(e.target.value);
+              handleTyping();
+            }}
             placeholder="Type a message..."
             className="flex-1 rounded px-3 py-1 max-h-10/12 bg-white"
           />

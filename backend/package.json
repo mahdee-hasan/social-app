@@ -17,6 +17,7 @@
   "homepage": "https://github.com/mahdee-hasan/chat-application#readme",
   "dependencies": {
     "@dotenvx/dotenvx": "^1.51.0",
+    "axios": "^1.13.2",
     "bcrypt": "^6.0.0",
     "cloudinary": "^2.7.0",
     "cookie-parser": "^1.4.7",

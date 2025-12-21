@@ -6,8 +6,7 @@ const getMessage = async (conId) => {
     if (res.status === 200) {
       return {
         success: true,
-        seen: res.data.seen || [],
-        unseen: res.data.unseen || [],
+        message: res.data.messages || [],
         error: null,
       };
     } else {

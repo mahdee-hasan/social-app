@@ -6,6 +6,7 @@ import { useChatStore, useUserStore } from "@/app/store";
 import CreateNewCon from "./CreateNewCon";
 import getOpponents from "../utils/getOpponents";
 import userIcon from "/person.JPG";
+import joiningConRoom from "../services/joiningConRoom";
 
 const InboxMenu = () => {
   const [conversations, setConversations] = useState();
@@ -13,6 +14,7 @@ const InboxMenu = () => {
   const userId = useUserStore((s) => s.userObjectId);
   const setConId = useChatStore((s) => s.setOpenedChat);
   const conId = useChatStore((s) => s.openedChat);
+  //get all the conversation
   const getCon = async () => {
     try {
       const data = await getAllConversation(userId);
@@ -28,10 +30,21 @@ const InboxMenu = () => {
     }
   };
 
+  //set the conversation Id as clicked and join a new socket room
+  const openConversation = (conversationId) => {
+    setConId(conversationId);
+    joiningConRoom(conversationId);
+  };
+
+  //call the function once in every mount
   useEffect(() => {
     getCon();
+    if (conId) {
+      openConversation(conId);
+    }
   }, [userId]);
 
+  //return skeleton if not loaded
   if (loading) {
     return (
       <div className="h-full w-1/4">
@@ -60,33 +73,34 @@ const InboxMenu = () => {
     );
   }
 
+  //return conversations
   return (
     <div className="h-full w-1/4 relative">
       <div className="flex flex-col gap-1 ">
-        {" "}
+        {/* heading */}
         <p className="h-18 ring rounded text-white bg-gray-700 w-11/12 flex justify-center text-2xl items-center">
           Inbox
         </p>
+        {/* conversation mapping */}
         {conversations?.map((con, i, arr) => (
           <div
-            onClick={() => {
-              setConId(con._id);
-            }}
+            onClick={() => openConversation(con._id)}
             className={`w-11/12 flex gap-1 drop-down rounded p-1
              items-center cursor-pointer ${
                con._id === conId ? "bg-gray-400" : "bg-gray-200"
              } duration-100  h-18`}
             key={con._id}
             style={{
-              animationDelay: `${(arr.length - 1 - i) * 0.1}s`, // reverse delay
+              animationDelay: `${(arr.length - 1 - i) * 0.1}s`,
             }}
           >
+            {/* image of opponent or group photo */}
             <img
               className="w-10 h-10 mx-3 rounded-full bg-gray-500"
               src={getOpponents(con, userId).avatar || userIcon}
               alt="user"
             />
-
+            {/* name of conversation or opponents name */}
             <div className="space-y-1">
               <p className="font-bold text-gray-800">
                 {getOpponents(con, userId).name}
@@ -96,6 +110,7 @@ const InboxMenu = () => {
           </div>
         ))}
       </div>
+      {/* new conversation creation button */}
       <div
         className="absolute bottom-3
        left-3 h-15 flex items-center justify-center w-15 rounded-full"

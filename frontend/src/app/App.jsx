@@ -10,7 +10,6 @@ import SocketConnector from "@/components/socketConnector";
 function App() {
   const [isLoading, setIsLoading] = useState(true);
   const [tokenLoading, setTokenLoading] = useState(true);
-
   const setIdToken = useUserStore((state) => state.setIdToken);
   const setUid = useUserStore((state) => state.setUserUid);
   const uid = useUserStore((state) => state.userUid);

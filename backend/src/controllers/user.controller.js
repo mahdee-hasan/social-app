@@ -9,7 +9,6 @@ import Notification from "../models/notifications.model.js";
 const getMe = async (req, res, next) => {
   try {
     const { uid } = req.user;
-
     const user = await People.findOne({ uid });
 
     res.status(200).json(user);
